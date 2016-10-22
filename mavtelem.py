@@ -1,29 +1,8 @@
 
 from dronekit import connect,APIException
-from multiprocessing import Queue,Process
+from multiprocessing import Queue
 from time import sleep
-
-
-'''
-process that allows for teardown
-'''
-class TelemProcess(multiprocessing.Process):
-
-    def __init__(self,):
-        multiprocessing.Process.__init__(self)
-        self.exit = multiprocessing.Event()
-   
-    #run argument function forever until told to stop, at given delay
-    def repeatRun(self,func,delay,*args):
-        while not self.exit.is_set():
-            func(*args)
-            sleep(delay)
-
-    #set the event to stop the run loop
-    def stop(self):
-        self.exit.set()
-
-        
+from process import EProcess
 
 '''
 creates a process that fetches telemetry for images at a given delay and queues them
@@ -80,7 +59,7 @@ class DroneTelemetry:
     @delay: delay between getTelem function calls
     '''
     def startFetchTelem(self,delay):
-       self.executor = TelemProcess()
+       self.executor = EProcess()
        self.executor.repeatRun(self.enqueueTelem,delay,(self.telem_queue,))
 
     '''
