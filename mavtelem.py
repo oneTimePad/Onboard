@@ -22,7 +22,10 @@ class DroneTelemetry:
             raise DroneTelemException(e) 
         
         self.executor = None
-    
+
+    def getQueue(self):
+        return self.telem_queue
+
     '''
     fetches telemtry from mavlink
     returns dictionary with: [lat,lon,alt,groundcourse,pitch,yaw,roll]
