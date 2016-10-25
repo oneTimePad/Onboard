@@ -1,5 +1,8 @@
 
-
+import requests
+import json
+from droneapierror import DroneAPICallError,DroneAPIHTTPError
+import base64
 
 '''
 contains information for access token
@@ -8,13 +11,13 @@ class DroneAPIToken:
 
     def __init__(self,token_response):
         token = token_response['token']
-        expiration_b64 = token + "="* (4-len(token)%4)
-        decoded_expiration = expiration_b64.decode('base64')
-        self.expiration = json.loads(decoded.partition('}')[2].partition('}')[0]+"}")['exp']
+        token_b64 = token + "="* (4-len(token)%4)
+        decoded_token = str(base64.b64decode(token_b64))
+        self.expiration = json.loads(decoded_token.partition('}')[2].partition('}')[0]+"}")['exp']
         self.token = token
-    
+           
 
-    def getToken(self)
+    def getToken(self):
         return self.token
 
     def getExpiration(self):
@@ -22,16 +25,15 @@ class DroneAPIToken:
 
     #appended to headers list when accessing api
     #returned as tuple (authorization_header,token)
-    def toAuthorization(self:
-        return 'Authorization','JWT ' + self.token
-
+    def toAuthorization(self):
+        return ('Authorization','JWT ' + self.token)
 
 '''
 exports remote ground imagin station api
 '''
 class  DroneAPI:
 
-    def __init__:
+    def __init__(self):
         self.server_url = None
         self.username   = None
         self.password   = None
@@ -41,7 +43,7 @@ class  DroneAPI:
     set django server url
     @server_url: http://url:port : string
     '''
-    def setServer(server_url):
+    def setServer(self,server_url):
         self.server_url = server_url
     
     '''
@@ -49,20 +51,20 @@ class  DroneAPI:
     @username: string
     @password : string
     '''
-    def postAccess(username,password):
+    def postAccess(self,username,password):
         self.username = username
         self.password = password
         if self.server_url  is None:
             raise DroneAPICallError('getAccess','server url specified')
         headers = {'Content-Type':'application/json; charset=UTF-8'}
-        data    = {'password': self.password, 'username', self.password}
+        data    = {'password': self.password, 'username': self.username}
         endpoint = self.server_url +'/drone/login'
-        resp = requests.post(endpoint,headers,json.dumps(data))
+        resp = requests.post(endpoint,headers=headers,data=json.dumps(data))
 
         if resp.status_code == 200:
             self.access_token = DroneAPIToken(resp.json())
         else:
-            raise DroneAPIHTTPException(resp)
+            raise DroneAPIHTTPError(resp)
     '''
     refresh current token before expires
     '''
@@ -74,8 +76,8 @@ class  DroneAPI:
             resp = requests.post(self.url + '/drone/refresh',headers=headers,data=data)
             if resp.status_code == 400:
                 self.postAccess(self.username, self.password)
-            else if resp.status_code == 200:
-                self.access_token = DroneAPItoken(resp.json()
+            elif resp.status_code == 200:
+                self.access_token = DroneAPItoken(resp.json())
             else:
                 raise DroneAPIHTTPException(resp)
     
@@ -88,6 +90,6 @@ class  DroneAPI:
     @time: time image was taken
     '''
     #should rename this at some point
-    def postServerContact(image, telemetry_data,time)
+    def postServerContact(image, telemetry_data,time):
         pass 
    
