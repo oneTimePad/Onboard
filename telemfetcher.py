@@ -5,10 +5,11 @@ from fetcher import FetcherProcess
 '''
 creates a process that fetches telemetry for images at a given delay and queues them
 '''
-class TelemetFetcher(FetcherProcess):
+class TelemFetcher(FetcherProcess):
 
     def __init__(self,mav_server,telem_file):
         self.mav_server = mav_server
+        print(self.mav_server)
         self.drone_connection = None
     
         #starts the mav connection
@@ -16,8 +17,9 @@ class TelemetFetcher(FetcherProcess):
             self.drone_connection = connect(self.mav_server,wait_ready = True)
         except APIException as e:
             raise DroneTelemException(e)
-            
-
+        print("GG")
+        self.queue = queue
+        super(TelemFetcher,self).__init__(queue,delay)
                 
 
     '''
@@ -25,6 +27,7 @@ class TelemetFetcher(FetcherProcess):
     returns dictionary with: [lat,lon,alt,groundcourse,pitch,yaw,roll]
     '''
     def  preFetch(self):
+        print(here)
         lat = float(drone.location.global_frame.lat)
         lon = float(drone.location.global_frame.lon)
         alt = float(drone.location.global_frame.alt)
@@ -33,5 +36,6 @@ class TelemetFetcher(FetcherProcess):
         yaw   = float(drone.attitude.yaw)
         roll  = float(drone.attitude.roll) 
         telem_data = dict( (name, eval(name)) for name in ['lat','lon','alt','groundcourse','pitch','yaw','roll'])
+        print(telem_data)
         self.queue.put(telem_data)       
 

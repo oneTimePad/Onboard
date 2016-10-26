@@ -14,9 +14,10 @@ def main():
 
         print('success')
 
-        tFetcher = TelemFetcher('172.27.127.205:14550','lol.txt')
+        tFetcher = TelemFetcher('/dev/ttyACM0','lol.txt')
         tFetcher.start()
-
+        while True:
+            print(tFetcher.getQueue().deQueue())
 
 
 main()
