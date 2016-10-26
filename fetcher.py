@@ -34,6 +34,7 @@ class FetcherProcess(Process):
     #overrides Process super class run
     #continues to prefetch while it can
     def run(self):
+        print("Hi")
         while not self.exit.is_set():
            # if self.queue.size() < self.prefetch_max
             self.preFetch()
