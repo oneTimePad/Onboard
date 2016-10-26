@@ -5,7 +5,7 @@ from fetcher import FetcherProcess
 '''
 creates a process that fetches telemetry for images at a given delay and queues them
 '''
-class TelemFetcher(FetcherProcess):
+class TelemetFetcher(FetcherProcess):
 
     def __init__(self,mav_server,telem_file):
         self.mav_server = mav_server
@@ -14,7 +14,7 @@ class TelemFetcher(FetcherProcess):
         #starts the mav connection
         try:
             self.drone_connection = connect(self.mav_server,wait_ready = True)
-        except APIException e:
+        except APIException as e:
             raise DroneTelemException(e)
             
 
