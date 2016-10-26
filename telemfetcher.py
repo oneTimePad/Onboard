@@ -7,14 +7,14 @@ creates a process that fetches telemetry for images at a given delay and queues 
 '''
 class TelemFetcher(FetcherProcess):
 
-    def __init__(self,mav_server,telem_file):
+    def __init__(self,mav_server,queue,delay,telem_file):
         self.mav_server = mav_server
         print(self.mav_server)
-        self.drone_connection = None
-    
+        self.drone = None
+	print(delay)    
         #starts the mav connection
         try:
-            self.drone_connection = connect(self.mav_server,wait_ready = True)
+            self.drone = connect(self.mav_server,wait_ready = True)
         except APIException as e:
             raise DroneTelemException(e)
         print("GG")
@@ -27,15 +27,15 @@ class TelemFetcher(FetcherProcess):
     returns dictionary with: [lat,lon,alt,groundcourse,pitch,yaw,roll]
     '''
     def  preFetch(self):
-        print(here)
-        lat = float(drone.location.global_frame.lat)
-        lon = float(drone.location.global_frame.lon)
-        alt = float(drone.location.global_frame.alt)
-        groundcourse = float(drone.heading)
-        pitch = float(drone.attitude.pitch)
-        yaw   = float(drone.attitude.yaw)
-        roll  = float(drone.attitude.roll) 
-        telem_data = dict( (name, eval(name)) for name in ['lat','lon','alt','groundcourse','pitch','yaw','roll'])
-        print(telem_data)
-        self.queue.put(telem_data)       
+        print('here')
+	telem = dict()
+        telem['lat'] = float(self.drone.location.global_frame.lat)
+        telem['lon'] = float(self.drone.location.global_frame.lon)
+        telem['alt'] = float(self.drone.location.global_frame.alt)
+        telem['groundcourse'] = float(self.drone.heading)
+        telem['pitch'] = float(self.drone.attitude.pitch)
+        telem['yaw']   = float(self.drone.attitude.yaw)
+        telem['roll']  = float(self.drone.attitude.roll)
+	
+        self.queue.put(telem)       
 

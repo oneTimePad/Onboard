@@ -1,7 +1,7 @@
 #from imagefetcher import ImageFetcher
 from telemfetcher import TelemFetcher
 from droneapi     import DroneAPI
-
+from multiprocessing import Queue
 
 
 
@@ -14,10 +14,10 @@ def main():
 
         print('success')
 
-        tFetcher = TelemFetcher('/dev/ttyACM0','lol.txt')
+        tFetcher = TelemFetcher('/dev/ttyACM0',Queue(),float(1.0),'lol.txt')
         tFetcher.start()
         while True:
-            print(tFetcher.getQueue().deQueue())
+            print(tFetcher.deQueue())
 
 
 main()

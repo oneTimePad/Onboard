@@ -1,14 +1,14 @@
 
-from multiprocessing import Process,Queue
-
+from multiprocessing import Process,Queue,Event
+from time import sleep
 '''
 process that allows for teardown
 '''
 class FetcherProcess(Process):
 
     def __init__(self,delay,queue):
-        super(Process,self).__init__()
-        self.exit = multiprocessing.Event()
+        super(FetcherProcess,self).__init__()
+        self.exit = Event()
 
         self.prefetch_queue = queue 
         self.prefetch_delay = delay 
@@ -21,7 +21,7 @@ class FetcherProcess(Process):
 
     #returns multiprocessing.Queue, prefetch queue 
     def getQueue(self):
-        return self.Queue
+        return self.queue
     
     #dequeue special objects from queue
     def deQueue(self):
@@ -38,7 +38,7 @@ class FetcherProcess(Process):
         while not self.exit.is_set():
            # if self.queue.size() < self.prefetch_max
             self.preFetch()
-            sleep(self.prefetch_delay)
+            sleep(1.0)
 
     #tell the process to die
     def terminate(self):
