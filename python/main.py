@@ -1,28 +1,28 @@
-#from imagefetcher import ImageFetcher
+from ctypes import *
+from time import sleep
+import pdb
+from mvcam import MachineVision,MvExposure
 from telemfetcher import TelemFetcher
-from droneapi     import DroneAPI
-from multiprocessing import Queue
 
-
-
-
-def main():
-
-        api = DroneAPI()
-        api.setServer('http://172.27.127.205:2000')
-        api.postAccess('drone','ruautonomous')
-
-        print('success')
-
-        tFetcher = TelemFetcher('/dev/ttyACM0',Queue(),float(1.0),'lol.txt')
-        tFetcher.start()
-        while True:
-            print(tFetcher.deQueue())
-
+def  main():
+	cam = MachineVision("C:\\Users\\ruautonomous\\Desktop\\Onboard\\libmvcam\\Debug\\libmvcam.dll","C:\\Users\\ruautonomous\\Desktop\\pic")
+	
+	cam.openCam()
+	exp = MvExposure(shutter=400,gain=1.0,awop=2)
+	cam.setExposure(exp)
+	cam.startCam(1.0)
+	telem = TelemFetcher("com3")
+	image_index = 1
+	while True:
+		image,err = cam.getImage("capt"+str(image_index)+str(".jpeg",5000)
+		telemData = telem.fetchTelem()
+		print telemData
+		cam.saveImage(image,100)
+		sleep(1)
+		image_index+=1
+	cam.stopCam()
+	
+	
+	
 
 main()
-
-
-
-
-
