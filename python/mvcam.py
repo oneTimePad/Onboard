@@ -20,7 +20,7 @@ class mvCamImage(Structure):
 	_fields_ = [
 		("frame",dvpFrame),
 		("image_buffer",c_void_p),
-		("image_name", c_char*4096)
+		("image_name", c_char*10000)
 	]
 
 class mvExposure(Structure):
@@ -51,6 +51,8 @@ class MvExposure(object):
 class MvCamImage(object):
 	def __init__(self,image):
 		self._as_parameter_ = image
+	def setName(self,image_name):
+		self._as_parameter_.image_name = image_name
 	
 
 class MachineVision:
@@ -75,13 +77,13 @@ class MachineVision:
 	def startCam(self,fps):
 		self.fps = fps
 		delay = c_double(0)
-		loop = c_double(1/fps)
+		loop = c_double((1/fps)*1000000)
+		print(loop)
 		return int(self.libHandle.mvCamStartTrigger(pointer(self.dvpHandle),delay,loop,pointer(self.dvpStatus)))
 	
 	
-	def getImage(self,name,timeout):
+	def getImage(self,timeout):
 		image = mvCamImage()
-		image.image_name = self.imageStorage + "\\"+ name
 		ctimeout = c_uint(timeout)
 		retVal = int(self.libHandle.mvCamGetImage(pointer(self.dvpHandle), pointer(image),ctimeout,pointer(self.dvpStatus)))
 		return MvCamImage(image),retVal

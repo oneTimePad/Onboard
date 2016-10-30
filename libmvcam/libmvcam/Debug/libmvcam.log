@@ -1,7 +1,3 @@
-﻿  dllmain.cpp
-  stdafx.cpp
-  libmvcam.cpp
-  Generating Code...
-     Creating library C:\Users\ruautonomous\Desktop\Onboard\libmvcam\Debug\libmvcam.lib and object C:\Users\ruautonomous\Desktop\Onboard\libmvcam\Debug\libmvcam.exp
+﻿  libmvcam.cpp
   libmvcam.vcxproj -> C:\Users\ruautonomous\Desktop\Onboard\libmvcam\Debug\libmvcam.dll
   libmvcam.vcxproj -> C:\Users\ruautonomous\Desktop\Onboard\libmvcam\Debug\libmvcam.pdb (Full PDB)

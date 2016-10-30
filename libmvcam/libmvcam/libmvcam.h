@@ -14,7 +14,7 @@
 #include <string.h>
 
 
-#define MAX_CAMERA_NAME 4095
+#define MAX_CAMERA_NAME 10000
 #define MAX_IMAGE_NAME 4095
 extern "C" {
 	typedef struct _mvCamImage {

@@ -21,4 +21,11 @@ class TelemFetcher(object):
 		telem['yaw']   = float(self.drone.attitude.yaw)
 		telem['roll']  = float(self.drone.attitude.roll)
 		return telem
+	
+	def telem2str(self,telem):
+		string = '_'
+		for key in telem.keys():
+			string+=key+'_'+str(telem[key])
+		return string
+	
 
