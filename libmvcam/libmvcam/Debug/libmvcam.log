@@ -1,3 +1,5 @@
-﻿  libmvcam.cpp
-  libmvcam.vcxproj -> C:\Users\ruautonomous\Desktop\Onboard\libmvcam\Debug\libmvcam.dll
-  libmvcam.vcxproj -> C:\Users\ruautonomous\Desktop\Onboard\libmvcam\Debug\libmvcam.pdb (Full PDB)
+﻿  dllmain.cpp
+  stdafx.cpp
+  libmvcam.cpp
+  Generating Code...
+LINK : fatal error LNK1104: cannot open file 'C:\Users\ruautonomous\Desktop\prebuilt-dll-2-9-1-release\dll\x86\pthreadVC2.lib'

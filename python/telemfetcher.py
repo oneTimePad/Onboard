@@ -9,7 +9,8 @@ class TelemFetcher(object):
 		try:
 			self.drone = connect(self.mav_server,wait_ready = True)
 		except APIException as e:
-			raise DroneTelemException(e)
+			pass
+			#raise DroneTelemException(e)
 
 	def  fetchTelem(self):
 		telem = dict()
