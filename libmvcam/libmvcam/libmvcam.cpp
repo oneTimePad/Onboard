@@ -3,23 +3,13 @@
 
 #include "stdafx.h"
 #include "libmvcam.h"
+#define HAVE_STRUCT_TIMESPEC
+#include <pthread.h>
+#include <stdio.h>
+#include <malloc.h>
 
-/*
-// This is an example of an exported variable
-LIBMVCAM_API int nlibmvcam=0;
 
-// This is an example of an exported function.
-LIBMVCAM_API int fnlibmvcam(void)
-{
-    return 42;
-}
 
-// This is the constructor of a class that has been exported.
-// see libmvcam.h for the class definition
-Clibmvcam::Clibmvcam()
-{
-    return;
-}*/
 
 
 #include "stdafx.h"
@@ -299,6 +289,7 @@ mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, 
 
 	status = dvpGetFrame(*handle, &image->frame, &image->image_buffer, timeout);
 
+
 	if (status != DVP_STATUS_OK) {
 		*ret_stat = status;
 		return MV_DVP_ERROR;
@@ -323,4 +314,85 @@ mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpSt
 
 	return MV_OK;
 
+}
+
+typedef struct {
+	dvpHandle handle;
+	telemetry telem;
+} thread_arg;
+
+/*
+* fetched the image frame, associates telemetry, and saves it 
+* returns status of mv library functions
+*/
+mvStatus mvCamFetchAndSave(thread_arg *arg) {
+	//fetch the pthread arg
+	dvpHandle *handle = &arg->handle;
+	telemetry *telem = &arg->telem;
+
+	mvCamImage image;	//image frame handle for mv library
+	dvpStatus ret_stat; //status returned by dvp library functions
+	mvStatus  stat; //error status returned by mv functions
+#define DFT_TIMEOUT (dvpUint32) 5000
+	//fetch the image from machine vision camera
+	if ((stat = mvCamGetImage(handle, &image, DFT_TIMEOUT, &ret_stat)) != MV_OK) {
+		return stat;
+	}
+	//construct the image file name containing telemetry
+	//hardcoded format string for image name
+#define FILE_NAME_TEMPLATE "capt%lu__lat_%lf_lon_%lf_alt_%lf_gc_%lf_pitch_%lf_yaw_%lf_roll_%lf.jpeg"
+#define FILE_NAME_TEMPLATE_LEN (int)47
+	int total_file_name_len = 0;
+	//calculate the length of all telemetry parameters as strings
+	total_file_name_len+= snprintf(NULL, 0, "%lu", telem->tel_pic_index);
+	total_file_name_len+= snprintf(NULL, 0, "%lf", telem->tel_lat);
+	total_file_name_len+= snprintf(NULL, 0, "%lf", telem->tel_lon);
+	total_file_name_len+= snprintf(NULL, 0, "%lf", telem->tel_alt);
+	total_file_name_len+= snprintf(NULL, 0, "%lf", telem->tel_groundcourse);
+	total_file_name_len+= snprintf(NULL, 0, "%lf", telem->tel_pitch);
+	total_file_name_len+= snprintf(NULL, 0, "%lf", telem->tel_yaw);
+	total_file_name_len+= snprintf(NULL, 0, "%lf", telem->tel_roll);
+	total_file_name_len += FILE_NAME_TEMPLATE_LEN;
+	image.image_name = (char *)malloc(total_file_name_len+1);
+
+	int file_name_len = snprintf(image.image_name, total_file_name_len, FILE_NAME_TEMPLATE, telem->tel_pic_index,
+		telem->tel_lat,
+		telem->tel_lon,
+		telem->tel_alt,
+		telem->tel_groundcourse,
+		telem->tel_pitch,
+		telem->tel_yaw,
+		telem->tel_roll);
+	
+	if (image.image_name[file_name_len] != '\0' || file_name_len != total_file_name_len) {
+		return MV_NOMEM_ERROR;
+	}
+
+	//save the image
+#define QUALITY (int)100
+	stat = mvCamSaveImage(handle, &image, QUALITY, &ret_stat);
+	free(image.image_name);
+	free(arg);
+	return stat;
+
+
+}
+
+
+
+/*
+*async image fetching, takes in telemtry and creates a new thread to pair telem, fetch and save image
+*returns status of success
+*/
+mvStatus mvCamFetchAndTag(dvpHandle *handle, telemetry *telem) {
+
+	//package the argument for pthread
+	thread_arg *arg = (thread_arg *)malloc(sizeof(thread_arg));
+	arg->handle = *handle;
+	arg->telem =  *telem;
+
+	pthread_t image_thread;
+	pthread_create(&image_thread, NULL, (void *(*)(void*))mvCamFetchAndSave, arg);
+
+	return MV_OK;
 }
