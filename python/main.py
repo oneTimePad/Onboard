@@ -5,7 +5,10 @@ from mvcam import MachineVision,MvExposure,mvCamImage
 from telemfetcher import TelemFetcher
 from gcscommand import GCSCommand
 from multiprocessing import Queue,Process, Event
-
+from PIL import Image
+import piexif
+import json
+import dill
 
 
 
@@ -24,7 +27,7 @@ if __name__ == '__main__':
 	while True:
 		if trigger_event.is_set():
 			if cam  == None:
-				cam = MachineVision('/home/lie/auvsi/Onboard/libmvcam/libmvcam.so','/home/lie/pic')
+				cam = MachineVision('C:\\Users\\ruautonomous\\Desktop\\Onboard\\libmvcam\\Debug\\libmvcam.dll','C:\\Users\\ruautonomous\\Desktop\\pic')
 				cam.openCam()
 			if telem == None:
 				pass
