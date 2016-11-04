@@ -10,13 +10,13 @@
 #ifndef MVCAM_H
 #define MVCAM_H
 
-#include "../DVPCamera/DVPCamera.h"
-#include <string.h>
+#include "DVPCamera.h"
+
 
 
 #define MAX_CAMERA_NAME 10000
 #define MAX_IMAGE_NAME 4095
-extern "C" {
+
 	typedef struct _mvCamImage {
 		dvpFrame frame;
 		void *image_buffer;
@@ -53,17 +53,17 @@ extern "C" {
 		double tel_pitch, tel_yaw, tel_roll;
 	} telemetry;
 
-	__declspec(dllexport) mvStatus mvCamOpen(char *camName, dvpHandle *handle, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamScan(char *output, int size, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamOpenDef(dvpHandle *handle, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamDestroy(dvpHandle *handle, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamStartTrigger(dvpHandle *handle, double delay, double loop, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamStopTrigger(dvpHandle *handle, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamFetchImage(dvpHandle *handle, telemetry *telem);
-}
+extern mvStatus mvCamOpen(char *camName, dvpHandle *handle, dvpStatus *ret_stat);
+extern mvStatus mvCamScan(char *output, int size, dvpStatus *ret_stat);
+extern mvStatus mvCamOpenDef(dvpHandle *handle, dvpStatus *ret_stat);
+extern mvStatus mvCamDestroy(dvpHandle *handle, dvpStatus *ret_stat);
+extern mvStatus mvCamStartTrigger(dvpHandle *handle, double delay, double loop, dvpStatus *ret_stat);
+extern mvStatus mvCamStopTrigger(dvpHandle *handle, dvpStatus *ret_stat);
+extern mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, dvpStatus *ret_stat);
+extern mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpStatus *ret_stat);
+extern mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat);
+
+
 #endif
 
 
