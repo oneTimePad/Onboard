@@ -1,27 +1,15 @@
-// libmvcam.cpp : Defines the exported functions for the DLL application.
-//
 
-#include "stdafx.h"
-#include "libmvcam.h"
-#define HAVE_STRUCT_TIMESPEC
-#include <pthread.h>
+
+
+#include <stdlib.h>
 #include <stdio.h>
-#include <malloc.h>
-
-
-
-
-
-#include "stdafx.h"
+#include <unistd.h>
+#include <string.h>
 #include "libmvcam.h"
 
 
 
-#ifdef _M_X64
-#pragma comment(lib, "../DVPCamera/DVPCamera64.lib")
-#else
-#pragma comment(lib, "../DVPCamera/DVPCamera.lib")
-#endif
+
 
 
 
@@ -42,7 +30,7 @@ static mvStatus isValidHandle(dvpHandle *handle, dvpStatus *ret_stat) {
 }
 
  mvStatus mvCamOpen(char *camName, dvpHandle *handle, dvpStatus *ret_stat) {
-	if (camName == NULL || camName == "" || ret_stat == NULL) {
+	if (camName == NULL || ret_stat == NULL) {
 		return MV_INVAL_ERROR;
 	}
 
@@ -305,26 +293,27 @@ mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpSt
 
 	if (isValidHandle(handle, ret_stat) != MV_OK) {
 		return MV_DVP_ERROR;
-	}
+	}/*
 	dvpStatus status = dvpSavePicture(&image->frame, image->image_buffer, image->image_name, quality);
 	if (status != DVP_STATUS_OK) {
 		*ret_stat = status;
 		return MV_DVP_ERROR;
-	}
+	}*/
 
 	return MV_OK;
 
 }
-
+/*
 typedef struct {
 	dvpHandle handle;
 	telemetry telem;
 } thread_arg;
-
+*/
 /*
 * fetched the image frame, associates telemetry, and saves it 
 * returns status of mv library functions
 */
+/*
 mvStatus mvCamFetchAndSave(thread_arg *arg) {
 	//fetch the pthread arg
 	dvpHandle *handle = &arg->handle;
@@ -377,13 +366,14 @@ mvStatus mvCamFetchAndSave(thread_arg *arg) {
 
 
 }
-
+*/
 
 
 /*
 *async image fetching, takes in telemtry and creates a new thread to pair telem, fetch and save image
 *returns status of success
 */
+/*
 mvStatus mvCamFetchAndTag(dvpHandle *handle, telemetry *telem) {
 
 	//package the argument for pthread
@@ -396,3 +386,4 @@ mvStatus mvCamFetchAndTag(dvpHandle *handle, telemetry *telem) {
 
 	return MV_OK;
 }
+*/
