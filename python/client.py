@@ -1,6 +1,7 @@
 
 import time
 import os
+import requests
 
 
 
@@ -63,11 +64,16 @@ class Client(object):
         self.image_poll_delay = image_poll_delay
         self.executor = ThreadPoolExecutor(max_workers=workers)
 
+    #post the picture. Returns true if pic was successfully posted, false otherwise
     def post(self, image_filepath):
-        #TODO implement
+        f = open(image_filepath, "rb")
+        resp = requests.post(self.url+'/REPLACE-WITH-VALID-PICTURE-DIRECTORY',headers={'Content-Type': 'application/json; charset=UTF-8'},data=json.dumps({'pic': f, "rb"}))
+        f.close()
+        if resp.status_code == 200:
+            return True
+        else:
+            return False
         
-        #return True if post was successful, otherwise return False
-        return False
     
     def run(self):
         while(True):
