@@ -1,5 +1,6 @@
 
-
+import time
+import os
 
 
 
@@ -35,13 +36,45 @@ class _Client(object):
                 self.login()
             else:
                 self.parse_token(resp)
+        
+                
+class _ImagePoller(object):
+    def __init__(self, current_image_number, image_poll_directory):
+        self.current_image_number = current_image_number
+        self.image_poll_directory = image_poll_directory
+        self.current_image_filepath = ""
+        update_current_image_filepath()
+    def update_current_image_filepath(self):
+        current_image_filepath = image_poll_directory + "/capt" + str(current_image_number) + ".jpeg"
+    def next_image_available(self):
+        return os.path.isfile(current_image_filepath):
+    def increment(self):
+        current_image_number += 1
+        update_current_image_filepath
+    
 
 
 
 class Client(object):
-    def __init__(self,url,username,password):
+    def __init__(self,url,username,password, current_image_number=1, image_poll_directory, image_poll_delay):
 
         self.client = _Client(url,username,password)
+        self.imagePoller = _ImagePoller(current_image_number, image_poll_directory)
+        self.image_poll_delay = image_poll_delay
         self.executor = ThreadPoolExecutor(max_workers=workers)
 
-    def 
+    def post(self, image_filepath):
+        #TODO implement
+        
+        #return True if post was successful, otherwise return False
+        return False
+    
+    def run(self):
+        while(True):
+            if imagePoller.next_image_available() == True:
+                image_filepath = imagePoller.current_image_filepath
+                post_success = post(image_filepath)
+                if post_success == True:
+                    imagePoller.increment()
+            else:
+                time.sleep(image_poll_delay)
