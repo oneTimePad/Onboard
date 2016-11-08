@@ -84,12 +84,29 @@ class  DroneAPI:
 
 
     '''
-    post image information to imaging ground server
-    @image: image to post
-    @telemetry_data: data for geotagging image
-    @time: time image was taken
+    post image to imaging ground server
+    @image: filepath of image to post, image should already be geotagged and timetagged
+    returns True if post was succesful, False otherwise
     '''
     #should rename this at some point
-    def postServerContact(image, telemetry_data,time):
-        pass 
+    def postImage(self, image):
+        if self.server_url  is None:
+            raise DroneAPICallError('getAccess','server url specified')
+        headers = {'Content-Type':'application/json; charset=UTF-8'}
+        im = open(image, "rb")
+        data    = {'image': im.read()}
+        im.close()
+        endpoint = self.server_url +'/drone/postimage'
+        resp = requests.post(endpoint,headers=headers,data=json.dumps(data))
+        if resp.status_code == 400:
+            self.postAccess(self.username, self.password)
+            return False
+        elif resp.status_code == 200:
+            return True
+        else:
+            return False
+        
+         
+        
+        
    
