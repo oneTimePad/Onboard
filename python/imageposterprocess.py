@@ -27,6 +27,7 @@ drone_api = DroneAPI(server_url, username, password)
 drone_api.setAccessToken(access_token_as_text)
 
 
+# continuously poll and post if images and telemetry are found
 while (True):
     if image_poller.next_image_isready():
         post_success = drone_api.postImage(image_poller.get_next_image_filepath(), image_poller.get_next_telemetry_filepath())
