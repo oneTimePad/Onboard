@@ -88,7 +88,7 @@ class  DroneAPI:
     @image: filepath of image to post, image should already be geotagged and timetagged
     returns True if post was succesful, False otherwise
     '''
-    def postImage(self, image):
+    def postImage(self, image_filepath, telemetry_filepath):
         
         #server_url must be set before attempting to post anything!
         if self.server_url  is None:
@@ -97,7 +97,7 @@ class  DroneAPI:
         # put metadata + token into the header, im not sure if i did that correctly
         headers = {'Content-Type':'application/json; charset=UTF-8', 'Authorization JWT': self.token}
         # write the binary data from the file to the request
-        data    = {'image': open(image, "rb").read()}
+        data = {'image': open(image_filepath, "rb").read(), 'telemetry': open(telemetry_filepath, "r").read()}
         endpoint = self.server_url +'/drone/postimage'
         
         #send the post request
