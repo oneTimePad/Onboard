@@ -33,27 +33,26 @@ exports remote ground imagin station api
 '''
 class  DroneAPI:
 
-    def __init__(self):
-        self.server_url = None
-        self.username   = None
-        self.password   = None
+    def __init__(self, server_url, username, password):
+        self.server_url = server_url
+        self.username   = username
+        self.password   = password
         self.access_token =None
 
     '''
     set django server url
     @server_url: http://url:port : string
     '''
-    def setServer(self,server_url):
-        self.server_url = server_url
+        
+    def setAccessToken(self, access_token_as_text):
+        self.access_token = DroneAPIToken({'token': access_token_as_text})
     
     '''
     obtain access from imaging server [get token]
     @username: string
     @password : string
     '''
-    def postAccess(self,username,password):
-        self.username = username
-        self.password = password
+    def postAccess(self):
         if self.server_url  is None:
             raise DroneAPICallError('getAccess','server url specified')
         headers = {'Content-Type':'application/json; charset=UTF-8'}
