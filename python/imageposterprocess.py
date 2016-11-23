@@ -29,8 +29,8 @@ drone_api.setAccessToken(access_token_as_text)
 
 while (True):
     if image_poller.next_image_isready():
-        success = drone_api.postImage(image_poller.get_next_image_filepath(), image_poller.get_next_telemetry_filepath())
-        if success == True:
+        post_success = drone_api.postImage(image_poller.get_next_image_filepath(), image_poller.get_next_telemetry_filepath())
+        if post_success == True:
             print("Succesfully posted " + image_poller.get_next_image_filepath())
         else:
             print("Unsuccesfully posted " + image_poller.get_next_image_filepath())
