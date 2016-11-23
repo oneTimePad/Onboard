@@ -3,6 +3,7 @@ import requests
 import json
 from droneapierror import DroneAPICallError,DroneAPIHTTPError
 import base64
+import datetime
 
 '''
 contains information for access token
@@ -96,7 +97,7 @@ class  DroneAPI:
         # put metadata + token into the header, im not sure if i did that correctly
         headers = {'Content-Type':'application/json; charset=UTF-8', 'Authorization JWT': self.token}
         # write the binary data from the file to the request
-        data = {'image': open(image_filepath, "rb").read(), 'telemetry': open(telemetry_filepath, "r").read()}
+        data = {'image': open(image_filepath, "rb").read(), 'telemetry': open(telemetry_filepath, "r").read(), post_timestamp: str(datetime.datetime.now())}
         endpoint = self.server_url +'/drone/postimage'
         
         #send the post request
