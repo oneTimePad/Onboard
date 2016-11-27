@@ -1,42 +1,73 @@
-from multiprocessing import Queue,Process,Event
-import os
-from fetcher import FetcherProcess
+from mvcam import MachineVision,MvExposure,MvCamImage
+import multiprocessing
+
+LIBRARY_LOCATION = ""
+
+"""
+start the machine vision camera and fetches images
+"""
 
 
 
-'''
-fetches the name of the most recently added image
-'''
-class ImageFetcher(FetcherProcess):
+class ImageFetcher(object):
 
-    # image_directory: str, absolute pathname (i.e. /home/lie/Desktop)
-    # prefix: str, name of image up to number (i.e. capt)
-    #dir_info = (image_directory,prefix)
-    #delay: float, how long to wait to fetch next pic
-    # queue: multiprocessing.Queue, shared queue for images
-    def __init__(self,delay,queue,dir_info):
-        image_directory,prefix = dir_info
-        #the directory where images are stored
-        self.image_directory = image_directory
-        #the preix
-        of each image file
-        self.image_prefix = prefix
-        #the index of the current image
-        self.current_image = -1
-        
-        super(FetcherProcess,self).__init__(delay,queue)
+    def __init__(self,image_paramters,storage_dir,storage_prefix):
+
+        """
+        start the image capture process and fetches frames from camera
+        image_parameters := dict({
+                        'shutter_speed',
+                        'gain' //this might be removed
+                        'frame_timeout' //set to something high
+                        'jpeg_quality'
+                        }
+                        )
+        storage_dir := /path/to/image/dir/
+        storage_prefix := [capt]
+
+        don't set to daemon, call stop_capture when done
+
+        """
+        self.shutter_speed = image_paramters["shutter_speed"]
+        self.analog_gain = image_paramters["gain"]
+        self.frame_timeout = image_paramters["frame_timeout"]
+        self.jpeg_quality = image_paramters["jpeg_quality"]
 
 
-   
-    #fetches the next available image and attaches telemetry
-    def preFetch(self):
-        self.current_image+=1
-        image = self.image_directory+'/'+self.image_prefix+str(self.current_image)
-        file_image = None
-        with open(image,'r') as file_obj:
-            file_image = file_obj.read()
-            self.queue.put((self.current_image,file_image))
-        raise Exception('failed to read image')
-    
+        self.image_id = 0
+        self.mvCam = MachineVision(LIBRARY_LOCATION,storage_dir)
+        self.mvCam.open_cam()
+        self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.gain))
 
-   
+
+        self.kill_event = multiprocessing.Event()
+
+    def stop_capture(self):
+        """
+        sets the event to kill the fetching process
+        """
+
+        self.kill_event.set()
+
+    def start_capture(self,loop,delay):
+        """
+        starts up the machine vision camera capturing, fetches frames from
+        camera and saves them
+
+        """
+
+
+
+        self.mvCam.start_cam(loop,delay)
+
+        while not self.kill_event.is_set(): #while event is not set
+            image,err = self.mvCam.get_image(self.frame_timeout) # get fram
+
+            if err is not None:
+                raise Exception(err)
+
+            self.image_id +=1
+            image.set_name("".join((self.storage_dir,self.storage_prefix,str(self.image_id))))
+
+            self.mvCam.save_image(image,self.jpeg_quality)
+        self.mvCam.stop_cam()
