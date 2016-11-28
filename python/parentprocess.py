@@ -38,7 +38,7 @@ while(True):
         break
         
 
-#spawn imageposterprocess.py and imagetakerprocess.py with the correct command line inputs
+#spawn imageposterprocess.py and imagetakerprocess.py with the correct command line inputs in new cmd windows
 poster = subprocess.Popen(["python", 
                            "imageposterprocess.py", 
                            str(next_image_number), 
