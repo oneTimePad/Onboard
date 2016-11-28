@@ -3,6 +3,7 @@ import requests
 import json
 from droneapierror import DroneAPICallError,DroneAPIHTTPError
 import base64
+import datetime
 
 '''
 contains information for access token
@@ -33,27 +34,26 @@ exports remote ground imagin station api
 '''
 class  DroneAPI:
 
-    def __init__(self):
-        self.server_url = None
-        self.username   = None
-        self.password   = None
+    def __init__(self, server_url, username, password):
+        self.server_url = server_url
+        self.username   = username
+        self.password   = password
         self.access_token =None
 
     '''
     set django server url
     @server_url: http://url:port : string
     '''
-    def setServer(self,server_url):
-        self.server_url = server_url
+        
+    def setAccessToken(self, access_token_as_text):
+        self.access_token = DroneAPIToken({'token': access_token_as_text})
     
     '''
     obtain access from imaging server [get token]
     @username: string
     @password : string
     '''
-    def postAccess(self,username,password):
-        self.username = username
-        self.password = password
+    def postAccess(self):
         if self.server_url  is None:
             raise DroneAPICallError('getAccess','server url specified')
         headers = {'Content-Type':'application/json; charset=UTF-8'}
@@ -80,16 +80,48 @@ class  DroneAPI:
                 self.access_token = DroneAPItoken(resp.json())
             else:
                 raise DroneAPIHTTPException(resp)
+                
+                
+    '''
+    post a heartbeat message to the ground station
+    return True if trigger signal was received, False otherwise
+    '''
+    def triggerSignalReceived():
+        #dont know how to implement this
+        return True
     
 
 
     '''
-    post image information to imaging ground server
-    @image: image to post
-    @telemetry_data: data for geotagging image
-    @time: time image was taken
+    post image to imaging ground server
+    @image: filepath of image to post, image should already be geotagged and timetagged
+    returns True if post was succesful, False otherwise
     '''
-    #should rename this at some point
-    def postServerContact(image, telemetry_data,time):
-        pass 
+    def postImage(self, image_filepath, telemetry_filepath):
+        
+        #server_url must be set before attempting to post anything!
+        if self.server_url  is None:
+            raise DroneAPICallError('getAccess','server url specified')
+            
+        # put metadata + token into the header, im not sure if i did that correctly
+        headers = {'Content-Type':'application/json; charset=UTF-8', 'Authorization JWT': self.token}
+        # write the binary data from the file to the request
+        data = {'image': open(image_filepath, "rb").read(), 'telemetry': open(telemetry_filepath, "r").read(), post_timestamp: str(datetime.datetime.now())}
+        endpoint = self.server_url +'/drone/postimage'
+        
+        #send the post request
+        resp = requests.post(endpoint,headers=headers,data=json.dumps(data))
+        
+        #check the response code to determine if image was succesfully posted, and return True or False depending on that
+        if resp.status_code == 400:
+            self.postAccess(self.username, self.password)
+            return False
+        elif resp.status_code == 200:
+            return True
+        else:
+            return False
+        
+         
+        
+        
    
