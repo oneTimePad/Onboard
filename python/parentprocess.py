@@ -32,10 +32,9 @@ drone_api.postAccess()
 
 #wait for the "trigger signal"
 while(True):
-    if !drone_api.triggerSignalReceived():
-        time.sleep(5) #5 is arbitrary
-    else:
+    if drone_api.triggerSignalReceived():
         break
+    time.sleep(5) #5 is arbitrary
         
 
 #spawn imageposterprocess.py and imagetakerprocess.py with the correct command line inputs in new cmd windows
