@@ -80,6 +80,15 @@ class  DroneAPI:
                 self.access_token = DroneAPItoken(resp.json())
             else:
                 raise DroneAPIHTTPException(resp)
+                
+                
+    '''
+    post a heartbeat message to the ground station
+    return True if trigger signal was received, False otherwise
+    '''
+    def triggerSignalReceived():
+        #dont know how to implement this
+        return True
     
 
 
