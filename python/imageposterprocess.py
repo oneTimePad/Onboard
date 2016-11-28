@@ -12,13 +12,13 @@ import time
 if len(sys.argv) != 8:
     print("Error - Incorrect # of command line arguments passed to imageposterprocess.py. Number of arguments you passed in: " + str(len(sys.argv)-1) + ", number of arguments you need to pass in: 7")
     sys.exit(1)
-next_image_number = int(argv[1])
-image_poll_directory = argv[2]
-server_url = argv[3]
-username = argv[4]
-password = argv[5]
-access_token_as_text = argv[6]
-sleep_time = int(argv[7])
+next_image_number = int(sys.argv[1])
+image_poll_directory = sys.argv[2]
+server_url = sys.argv[3]
+username = sys.argv[4]
+password = sys.argv[5]
+access_token_as_text = sys.argv[6]
+sleep_time = int(sys.argv[7])
 
 
 # initialize the ImagePoller and DroneAPI objects
