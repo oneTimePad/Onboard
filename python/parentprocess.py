@@ -15,7 +15,7 @@ import subprocess
 if len(sys.argv) != 7:
     print("Error - Incorrect # of command line arguments passed to imageposterprocess.py." 
           "number of arguments you passed in: " + str(len(sys.argv)-1) + ", "
-          "number of arguments you need to pass in: 7")
+          "number of arguments you need to pass in: 6")
     sys.exit(1)
 server_url = sys.argv[1]
 username = sys.argv[2]
