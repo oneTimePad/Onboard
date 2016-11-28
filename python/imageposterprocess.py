@@ -10,7 +10,9 @@ import time
 
 # read all the command line inputs
 if len(sys.argv) != 8:
-    print("Error - Incorrect # of command line arguments passed to imageposterprocess.py. Number of arguments you passed in: " + str(len(sys.argv)-1) + ", number of arguments you need to pass in: 7")
+    print("Error - Incorrect # of command line arguments passed to imageposterprocess.py. "
+          "number of arguments you passed in: " + str(len(sys.argv)-1) + ", "
+          "number of arguments you need to pass in: 7")
     sys.exit(1)
 next_image_number = int(sys.argv[1])
 image_poll_directory = sys.argv[2]
