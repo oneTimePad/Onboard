@@ -5,6 +5,23 @@ import serial
 import multiprocessing
 
 
+def readline(ser):
+
+    """
+    reads serial until \n is seen
+
+    ser:= serial connection object
+
+    """
+
+
+    string = ""
+    while True:
+        ch = ser.read()
+        if(ch == '\n' or ch == ''):
+            break
+        string += ch
+    return string
 
 
 class TelemFetcher(object):
@@ -27,41 +44,12 @@ class TelemFetcher(object):
         """
 
 
-            self.mav_server = mav_server
-            self.expected_msg = arduino_msg
-            self.image_id = 0
-            self.storage_dir = storage_template
-            self.telem_queue = None
-
-    def connect_mav_server(self,wait_ready = True):
-
-        """
-        opens connection to mavproxy server
-        raises exception on error
-
-        """
-
-        try:
-            self.drone = dronekit.connect(self.mav_server,wait_ready=True)
-        except dronekit.APIException as e:
-            raise e
 
 
-    def fetch_telemtry(self):
-        """
-        fetch telemetry from mav and return as a dictionary
-        """
-        
-        telem = dict()
-        telem["lat"] = float(self.drone.location.global_frame.lat)
-        telem["lon"] = float(self.drone.location.global_frame.lon)
-        telem["alt"] = float(self.drone.location.global_relative_frame.alt)
-        telem["groundcourse"] = float(self.drone.heading)
-        telem["pitch"] = float(self.drone.attitude.pitch)
-        telem["yaw"] = float(self.drone.atttude.yaw)
-        telem["roll"] = float(self.drone.attitude.roll)
+        self.image_id = 0
+        self.storage_dir = storage_template
+        self.telem_queue = None
 
-        return telem
 
 
     def telemtry_receiver(self,telem_queue):
@@ -74,7 +62,7 @@ class TelemFetcher(object):
         """
         while True:
             self.image_id+=1
-            with open("".join((storage_dir,str(self.image_id),".telem")),"w")) as f:
+            with open("".join((storage_dir,str(self.image_id),".telem")),"w") as f:
                           f.write(str(telem_queue.get()))
 
     def start_telemtry_receiver(self):
@@ -92,12 +80,11 @@ class TelemFetcher(object):
         receiver.start()
 
 
-
     def start_serial_listener(self,device_port,baud=9600):
 
         """
-        open serial device connection and wait for message from the arduino
-        saying to fetch. puts telemtry in queue to be written to file
+        open serial device connection and waits for arduino to output telemtry.
+        puts telemtry in queue to be written to file
 
         device_port := com [windows] or device file [linux] where arduino
         serial is located
@@ -109,10 +96,10 @@ class TelemFetcher(object):
         if self.telem_queue  is None:
             raise Exception("Please call start telemetry reciever first")
 
-        serial_listener = serial.Serial(device_port,baud,0)
+        serial_listener = serial.Serial(device_port,baud,0) #non-blocking read
 
         while True:
-            arduino_msg = serial_listener.read()
-            if arduino_msg == self.expected_msg:
+            telemtry = serial_listener.read()
+            if readline(serial_listener) != "":
                 self.telem_queue.put(
                     self.fetch_telemtry())
