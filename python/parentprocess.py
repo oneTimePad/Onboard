@@ -3,6 +3,8 @@ This script is the only script that the user explicitly needs to run on a fly da
 Everything else is spawned by this file or a child of this file.
 This script logs in to the ground station and waits for the ground station to send the "trigger signal."
 Upon receiving the trigger signal, this script spawns imageposterprocess.py and imagetakerprocess.py.
+Then this script continues sending heartbeats and kills imageposterprocess.py and imagetakerprocess.py
+upon receiving the stop triggering signal
 '''
 
 import sys
@@ -32,7 +34,8 @@ drone_api.postAccess()
 
 #wait for the "trigger signal"
 while(True):
-    if drone_api.triggerSignalReceived():
+    heartbeat_response = drone_api.postHeartbeat()
+    if (heartbeat_response == 'start'):
         break
     time.sleep(5) #5 is arbitrary
         
@@ -49,6 +52,19 @@ poster = subprocess.Popen(["python",
                            image_poll_sleep_time], 
                           creationflags=subprocess.CREATE_NEW_CONSOLE)
 # todo spawn imagetakerprocess.py
+
+
+
+# wait for the "stop triggering" signal
+while(True):
+    heartbeat_response = drone_api.postHeartbeat()
+    if (heartbeat_response == 'stop'):
+        break
+    time.sleep(5) #5 is arbitrary
+    
+    
+# kill the spawned processes
+poster.kill()
         
     
     
