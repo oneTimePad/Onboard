@@ -83,12 +83,23 @@ class  DroneAPI:
                 
                 
     '''
-    post a heartbeat message to the ground station
-    return True if trigger signal was received, False otherwise
+    post a heartbeat message to the ground station, return the response body
     '''
-    def triggerSignalReceived():
-        #dont know how to implement this
-        return True
+    def postHeartbeat():
+        #server_url must be set before attempting to post anything!
+        if self.server_url  is None:
+            raise DroneAPICallError('getAccess','server url specified')
+            
+        # put metadata + token into the header, im not sure if i did that correctly
+        headers = {'Content-Type':'application/json'; charset=UTF-8', 'Authorization JWT': self.token}
+        # write the binary data from the file to the request
+        data = {'post_timestamp': str(datetime.datetime.now())}
+        endpoint = self.server_url +'/drone/postimage'
+        
+        #send the post request
+        resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
+        
+        return resp.text
     
 
 
@@ -104,13 +115,14 @@ class  DroneAPI:
             raise DroneAPICallError('getAccess','server url specified')
             
         # put metadata + token into the header, im not sure if i did that correctly
-        headers = {'Content-Type':'application/json; charset=UTF-8', 'Authorization JWT': self.token}
+        headers = {'Content-Type':'multipart/form; charset=UTF-8', 'Authorization JWT': self.token}
         # write the binary data from the file to the request
-        data = {'image': open(image_filepath, "rb").read(), 'telemetry': open(telemetry_filepath, "r").read(), post_timestamp: str(datetime.datetime.now())}
+        data = {'telemetry': open(telemetry_filepath, "r").read(), 'post_timestamp': str(datetime.datetime.now())}
+        files = {'image': open(image_filepath, "rb").read()}
         endpoint = self.server_url +'/drone/postimage'
         
         #send the post request
-        resp = requests.post(endpoint,headers=headers,data=json.dumps(data))
+        resp = requests.post(endpoint, headers=headers, data=json.dumps(data), files=files)
         
         #check the response code to determine if image was succesfully posted, and return True or False depending on that
         if resp.status_code == 400:
