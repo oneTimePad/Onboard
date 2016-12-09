@@ -8,6 +8,7 @@ from imagepoller import ImagePoller
 from droneapi import DroneAPI
 import time
 
+
 # read all the command line inputs
 if len(sys.argv) != 8:
     print("Error - Incorrect # of command line arguments passed to imageposterprocess.py. "
@@ -23,9 +24,12 @@ access_token_as_text = sys.argv[6]
 sleep_time = int(sys.argv[7])
 
 
+
 # initialize the ImagePoller and DroneAPI objects
 image_poller = ImagePoller(next_image_number, image_poll_directory)
 drone_api = DroneAPI(server_url, username, password)
+
+#@ethmur: can you explain the purpose behind this?
 drone_api.setAccessToken(access_token_as_text)
 
 
