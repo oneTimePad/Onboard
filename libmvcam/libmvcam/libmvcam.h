@@ -20,7 +20,7 @@ extern "C" {
 	typedef struct _mvCamImage {
 		dvpFrame frame;
 		void *image_buffer;
-		char *image_name;
+		char image_name[MAX_IMAGE_NAME + 1];
 		//telemetry goes here
 
 	} mvCamImage;
@@ -46,23 +46,15 @@ extern "C" {
 
 	} mvStatus;
 
-	typedef struct {
-		unsigned long tel_pic_index;
-		double tel_lat, tel_lon, tel_alt;
-		double tel_groundcourse;
-		double tel_pitch, tel_yaw, tel_roll;
-	} telemetry;
-
 	__declspec(dllexport) mvStatus mvCamOpen(char *camName, dvpHandle *handle, dvpStatus *ret_stat);
 	__declspec(dllexport) mvStatus mvCamScan(char *output, int size, dvpStatus *ret_stat);
 	__declspec(dllexport) mvStatus mvCamOpenDef(dvpHandle *handle, dvpStatus *ret_stat);
 	__declspec(dllexport) mvStatus mvCamDestroy(dvpHandle *handle, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamStartTrigger(dvpHandle *handle, double delay, double loop, dvpStatus *ret_stat);
+	__declspec(dllexport) mvStatus mvCamStartTrigger(dvpHandle *handle,  float loop, double delay, dvpStatus *ret_stat);
 	__declspec(dllexport) mvStatus mvCamStopTrigger(dvpHandle *handle, dvpStatus *ret_stat);
 	__declspec(dllexport) mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, dvpStatus *ret_stat);
 	__declspec(dllexport) mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpStatus *ret_stat);
 	__declspec(dllexport) mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat);
-	__declspec(dllexport) mvStatus mvCamFetchImage(dvpHandle *handle, telemetry *telem);
 }
 #endif
 
@@ -72,8 +64,8 @@ extern "C" {
 // This class is exported from the libmvcam.dll
 class LIBMVCAM_API Clibmvcam {
 public:
-	Clibmvcam(void);
-	// TODO: add your methods here.
+Clibmvcam(void);
+// TODO: add your methods here.
 };
 
 extern LIBMVCAM_API int nlibmvcam;

@@ -1,73 +1,94 @@
 from mvcam import MachineVision,MvExposure,MvCamImage
 import multiprocessing
+import os,sys
 
-LIBRARY_LOCATION = ""
+LIBRARY_LOCATION = "C:\\Users\\ruautonomous\\Desktop\\Onboard\\libmvcam\\Debug\\libmvcam.dll"
 
 """
 start the machine vision camera and fetches images
 """
 
 
+def interactive_stop_capture(kill_event):
+	"""
+   while True:
+		print("Type \"KILL\" to kill the imagefetcher process or \"EXIT\" to exit")
+		cmd = new_stdin.readline()
+		if "KILL" == cmd:
+			kill_event.set()
+		elif "EXIT" == cmd:
+			break
+	"""
+	#kill_event.set()
 
 class ImageFetcher(object):
 
-    def __init__(self,image_paramters,storage_dir,storage_prefix):
+	def __init__(self,image_parameters,storage_dir,storage_prefix):
 
-        """
-        start the image capture process and fetches frames from camera
-        image_parameters := dict({
-                        'shutter_speed',
-                        'gain' //this might be removed
-                        'frame_timeout' //set to something high
-                        'jpeg_quality'
-                        }
-                        )
-        storage_dir := /path/to/image/dir/
-        storage_prefix := [capt]
+		"""
+		start the image capture process and fetches frames from camera
+		image_parameters := dict({
+						'shutter_speed',
+						'gain' //this might be removed
+						'frame_timeout' //set to something high
+						'jpeg_quality'
+						}
+						)
+		storage_dir := /path/to/image/dir/
+		storage_prefix := [capt]
 
-        don't set to daemon, call stop_capture when done
+		don't set to daemon, call stop_capture when done
 
-        """
-        self.shutter_speed = image_paramters["shutter_speed"]
-        self.analog_gain = image_paramters["gain"]
-        self.frame_timeout = image_paramters["frame_timeout"]
-        self.jpeg_quality = image_paramters["jpeg_quality"]
-
-
-        self.image_id = 0
-        self.mvCam = MachineVision(LIBRARY_LOCATION,storage_dir)
-        self.mvCam.open_cam()
-        self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.gain))
+		"""
+		self.shutter_speed = image_parameters["shutter_speed"]
+		self.analog_gain = image_parameters["gain"]
+		self.frame_timeout = image_parameters["frame_timeout"]
+		self.jpeg_quality = image_parameters["jpeg_quality"]
+		self.aemode = image_parameters["aemode"]
+		self.aeop = image_parameters["aeop"]
 
 
-        self.kill_event = multiprocessing.Event()
-
-    def stop_capture(self):
-        """
-        sets the event to kill the fetching process
-        """
-
-        self.kill_event.set()
-
-    def start_capture(self,loop,delay):
-        """
-        starts up the machine vision camera capturing, fetches frames from
-        camera and saves them
-
-        """
+		self.image_id = 0
+		self.mvCam = MachineVision(LIBRARY_LOCATION,storage_dir)
+		self.storage_dir = storage_dir
+		self.storage_prefix = storage_prefix
+		self.mvCam.open_cam()
+		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
 
 
+		self.kill_event = multiprocessing.Event()
+		
+		controller = multiprocessing.Process(target=interactive_stop_capture, args=(self.kill_event,))
+		#controller.daemon = True
+		controller.start()
+		
+	def start_capture(self,loop,delay):
+		"""
+		starts up the machine vision camera capturing, fetches frames from
+		camera and saves them
 
-        self.mvCam.start_cam(loop,delay)
+		"""
 
-        while not self.kill_event.is_set(): #while event is not set
-            image,err = self.mvCam.get_image(self.frame_timeout) # get fram
 
-            if err is not None:
-                raise Exception(err)
 
-            self.image_id +=1
-            image.set_name("".join((self.storage_dir,self.storage_prefix,str(self.image_id))))
+		if self.mvCam.start_cam(loop,delay) != 0:
+			raise Exception(self.mvCam.dvpStatus)
+		print "started cam loop"
+		while not self.kill_event.is_set(): #while event is not set
+			image,err = self.mvCam.get_image(self.frame_timeout) # get fram
 
-            self.mvCam.save_image(image,self.jpeg_quality)
-        self.mvCam.stop_cam()
+			if err != 0:
+				raise Exception(self.mvCam.dvpStatus)
+
+			self.image_id +=1
+			name = "".join((self.storage_dir,self.storage_prefix,str(self.image_id),".jpeg"))
+			print name
+			image.set_name(name)
+
+			print("But save_image returned", self.mvCam.save_image(image,self.jpeg_quality))
+		self.mvCam.stop_cam()
+if __name__ == "__main__":
+	#newstdin = os.fdopen(os.dup(sys.stdin.fileno()))
+	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, "C:\\Users\\ruautonomous\\Desktop\\extra-onboard\\nudes\\", "capt")
+	image_fetcher.start_capture(1000000, 1000000)
+	print "YAY!"

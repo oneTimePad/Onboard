@@ -5,14 +5,14 @@ class dvpFrame(Structure):
 	_fields_=[
 		("format", c_int),
 		("bits",   c_int),
-		("uBytes", c_int),
+		("uBytes", c_uint),
 		("iWidth", c_int),
 		("iHeight",c_int),
 		("uFrameID",c_uint64),
 		("uTimestamp",c_uint64),
 		("fExposure", c_double),
 		("fAGain",    c_float),
-		("reserved",  c_int*32)
+		("reserved",  c_uint*32)
 		
 	]
 
@@ -48,7 +48,7 @@ class MvExposure(object):
 class MvCamImage(object):
 	def __init__(self,image):
 		self._as_parameter_ = image
-	def setName(self,image_name):
+	def set_name(self,image_name):
 		self._as_parameter_.image_name = image_name
 
 class MachineVision:
@@ -62,32 +62,33 @@ class MachineVision:
 		return int(self.dvpStatus)
 	
 	def open_cam(self):
-		return int(self.libHandle.mvCamOpenDef(pointer(self.dvpHandle),pointer(self.dvpStatus)))
+		return int(self.libHandle.mvCamOpenDef(byref(self.dvpHandle),byref(self.dvpStatus)))
 	
 	def set_exposure(self,exp):
-		return int(self.libHandle.mvCamSetExposure(pointer(self.dvpHandle),exp,pointer(self.dvpStatus)))
+		return int(self.libHandle.mvCamSetExposure(byref(self.dvpHandle),exp,byref(self.dvpStatus)))
 		
 	
 	def start_cam(self,loop,delay):
-		self.fps = fps
-		delay = c_double(loop)
+		#fps = 1./(loop + delay)
+		#self.fps = fps
+		delay = c_double(delay)
 		#loop = c_double((1/fps)*1000000)
-		loop = c_double(delay)
-		return int(self.libHandle.mvCamStartTrigger(pointer(self.dvpHandle),delay,loop,pointer(self.dvpStatus)))
+		loop = c_float(loop)
+		return int(self.libHandle.mvCamStartTrigger(byref(self.dvpHandle),loop,delay,byref(self.dvpStatus)))
 	
 	
 	def get_image(self,timeout):
 		image = mvCamImage()
 		ctimeout = c_uint(timeout)
-		retVal = int(self.libHandle.mvCamGetImage(pointer(self.dvpHandle), pointer(image),ctimeout,pointer(self.dvpStatus)))
+		retVal = int(self.libHandle.mvCamGetImage(byref(self.dvpHandle), byref(image),ctimeout,byref(self.dvpStatus)))
 		return MvCamImage(image),retVal
 	
 	def save_image(self,image,quality):
 		cquality = c_int(quality)
-		return int(self.libHandle.mvCamSaveImage(pointer(self.dvpHandle),pointer(image._as_parameter_),cquality,pointer(self.dvpStatus)))
+		return int(self.libHandle.mvCamSaveImage(byref(self.dvpHandle),byref(image._as_parameter_),cquality,byref(self.dvpStatus)))
 	
 	def stop_cam(self):
-		return int(self.libHandle.mvCamStopTrigger(pointer(self.dvpHandle),pointer(self.dvpStatus)))
+		return int(self.libHandle.mvCamStopTrigger(byref(self.dvpHandle),byref(self.dvpStatus)))
 	
 		
 		
