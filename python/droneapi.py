@@ -85,16 +85,17 @@ class  DroneAPI:
     '''
     post a heartbeat message to the ground station, return the response body
     '''
-    def postHeartbeat():
+    def postHeartbeat(self):
         #server_url must be set before attempting to post anything!
         if self.server_url  is None:
             raise DroneAPICallError('getAccess','server url specified')
             
         # put metadata + token into the header, im not sure if i did that correctly
-        headers = {'Content-Type':'application/json'; charset=UTF-8', 'Authorization JWT': self.token}
+        token_label, token_value = self.access_token.toAuthorization()
+        headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
         # write the binary data from the file to the request
         data = {'post_timestamp': str(datetime.datetime.now())}
-        endpoint = self.server_url +'/drone/postimage'
+        endpoint = self.server_url +'/drone/serverContact'
         
         #send the post request
         resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
@@ -115,7 +116,8 @@ class  DroneAPI:
             raise DroneAPICallError('getAccess','server url specified')
             
         # put metadata + token into the header, im not sure if i did that correctly
-        headers = {'Content-Type':'multipart/form; charset=UTF-8', 'Authorization JWT': self.token}
+        token_label, token_value = self.access_token.toAuthorization()
+        headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
         # write the binary data from the file to the request
         data = {'telemetry': open(telemetry_filepath, "r").read(), 'post_timestamp': str(datetime.datetime.now())}
         files = {'image': open(image_filepath, "rb").read()}
