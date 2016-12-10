@@ -42,7 +42,7 @@ while(True):
     time1 = datetime.datetime.now()
     heartbeat_response = drone_api.postHeartbeat()
     time2 = datetime.datetime.now()
-    print("Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + heartbeat_response.status)
+    print("Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + heartbeat_response.status_code)
     if (heartbeat_response == 'start'):
         break
     time.sleep(5) #5 is arbitrary
