@@ -11,30 +11,38 @@ import sys
 from droneapi import DroneAPI
 import time
 import subprocess
+import datetime
 
 
 # read all the command line inputs
-if len(sys.argv) != 7:
-    print("Error - Incorrect # of command line arguments passed to imageposterprocess.py." 
-          "number of arguments you passed in: " + str(len(sys.argv)-1) + ", "
-          "number of arguments you need to pass in: 6")
+if len(sys.argv) != 8:
+    print("Error - Incorrect number of command line arguments passed to imageposterprocess.py.\n" 
+          "Usage: python imageposterprocess.py [server_ip] [server_port] [username] [password] [next_image_number] [image_poll_directory] [image_poll_sleep_time]")
     sys.exit(1)
-server_url = sys.argv[1]
-username = sys.argv[2]
-password = sys.argv[3]
-next_image_number = int(sys.argv[4])
-image_poll_directory = sys.argv[5]
-image_poll_sleep_time = int(sys.argv[6])
+server_ip = sys.argv[1]
+server_port = sys.argv[2]
+username = sys.argv[3]
+password = sys.argv[4]
+next_image_number = int(sys.argv[5])
+image_poll_directory = sys.argv[6]
+image_poll_sleep_time = int(sys.argv[7])
+
+
 
 
 #login to the ground station
+server_url = "http://"+server_ip+":"+server_port
 drone_api = DroneAPI(server_url, username, password)
 drone_api.postAccess()
+print("Successfully logged in to " + server_url + " at " + str(datetime.datetime.now()))
 
 
-#wait for the "trigger signal"
+#post heartbeats and wait for the "trigger signal"
 while(True):
+    time1 = datetime.datetime.now()
     heartbeat_response = drone_api.postHeartbeat()
+    time2 = datetime.datetime.now()
+    print("Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + heartbeat_response.status)
     if (heartbeat_response == 'start'):
         break
     time.sleep(5) #5 is arbitrary
