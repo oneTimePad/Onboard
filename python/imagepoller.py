@@ -21,7 +21,7 @@ class ImagePoller(object):
     '''                
           
     # Constructor, takes next_image_number (default=1) and image_poll_directory as input
-    def __init__(self, next_image_number=1, image_poll_directory):
+    def __init__(self,image_poll_directory,next_image_number = 1):
         self.next_image_number = next_image_number
         self.image_poll_directory = image_poll_directory
         # if the image poll directory does not end in a file path seperator, append one
@@ -34,7 +34,7 @@ class ImagePoller(object):
         
     # returns True if the next image is ready to be posted, returns False otherwise
     def next_image_isready(self):
-        if !os.path.isfile(self.next_image_filepath) or !os.path.isfile(self.next_telemetry_filepath):
+        if not os.path.isfile(self.next_image_filepath) or not os.path.isfile(self.next_telemetry_filepath):
             return False
         # if the telemetry file exists but is empty, just skip over it
         if os.path.getsize(self.next_telemetry_filepath) == 0:

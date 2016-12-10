@@ -95,7 +95,7 @@ class  DroneAPI:
         headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
         # write the binary data from the file to the request
         data = {'post_timestamp': str(datetime.datetime.now())}
-        endpoint = self.server_url +'/drone/serverContact'
+        endpoint = self.server_url +'/drone/postHeartbeat'
         
         #send the post request
         resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
