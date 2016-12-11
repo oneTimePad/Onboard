@@ -83,7 +83,7 @@ class  DroneAPI:
                 
                 
     '''
-    post a heartbeat message to the ground station, return the response body
+    post a heartbeat message to the ground station, return the response
     '''
     def postHeartbeat(self):
         #server_url must be set before attempting to post anything!
@@ -95,19 +95,19 @@ class  DroneAPI:
         headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
         # write the binary data from the file to the request
         data = {'post_timestamp': str(datetime.datetime.now())}
-        endpoint = self.server_url +'/drone/postHeartbeat'
+        endpoint = self.server_url +'/drone/serverContact'
         
         #send the post request
         resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
         
-        return resp.text
+        return resp
     
 
 
     '''
     post image to imaging ground server
     @image: filepath of image to post, image should already be geotagged and timetagged
-    returns True if post was succesful, False otherwise
+    returns the response
     '''
     def postImage(self, image_filepath, telemetry_filepath):
         
@@ -126,14 +126,8 @@ class  DroneAPI:
         #send the post request
         resp = requests.post(endpoint, headers=headers, data=json.dumps(data), files=files)
         
-        #check the response code to determine if image was succesfully posted, and return True or False depending on that
-        if resp.status_code == 400:
-            self.postAccess(self.username, self.password)
-            return False
-        elif resp.status_code == 200:
-            return True
-        else:
-            return False
+        #return the response
+        return resp
         
          
         
