@@ -3,3 +3,4 @@ libmvcam/libmvcam.VC.db
 libmvcam/libmvcam.VC.VC.opendb
 libmvcam/Debug/
 libmvcam/DVPCamera/
+telemfile/*.telem
