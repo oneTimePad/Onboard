@@ -83,19 +83,31 @@ class  DroneAPI:
                 
                 
     '''
-    post a heartbeat message to the ground station
-    return True if trigger signal was received, False otherwise
+    post a heartbeat message to the ground station, return the response
     '''
-    def triggerSignalReceived():
-        #dont know how to implement this
-        return True
+    def postHeartbeat(self):
+        #server_url must be set before attempting to post anything!
+        if self.server_url  is None:
+            raise DroneAPICallError('getAccess','server url specified')
+            
+        # put metadata + token into the header, im not sure if i did that correctly
+        token_label, token_value = self.access_token.toAuthorization()
+        headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
+        # write the binary data from the file to the request
+        data = {'post_timestamp': str(datetime.datetime.now())}
+        endpoint = self.server_url +'/drone/serverContact'
+        
+        #send the post request
+        resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
+        
+        return resp
     
 
 
     '''
     post image to imaging ground server
     @image: filepath of image to post, image should already be geotagged and timetagged
-    returns True if post was succesful, False otherwise
+    returns the response
     '''
     def postImage(self, image_filepath, telemetry_filepath):
         
@@ -104,22 +116,18 @@ class  DroneAPI:
             raise DroneAPICallError('getAccess','server url specified')
             
         # put metadata + token into the header, im not sure if i did that correctly
-        headers = {'Content-Type':'application/json; charset=UTF-8', 'Authorization JWT': self.token}
+        token_label, token_value = self.access_token.toAuthorization()
+        headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
         # write the binary data from the file to the request
-        data = {'image': open(image_filepath, "rb").read(), 'telemetry': open(telemetry_filepath, "r").read(), post_timestamp: str(datetime.datetime.now())}
+        data = {'telemetry': open(telemetry_filepath, "r").read(), 'post_timestamp': str(datetime.datetime.now())}
+        files = {'image': open(image_filepath, "rb").read()}
         endpoint = self.server_url +'/drone/postimage'
         
         #send the post request
-        resp = requests.post(endpoint,headers=headers,data=json.dumps(data))
+        resp = requests.post(endpoint, headers=headers, data=json.dumps(data), files=files)
         
-        #check the response code to determine if image was succesfully posted, and return True or False depending on that
-        if resp.status_code == 400:
-            self.postAccess(self.username, self.password)
-            return False
-        elif resp.status_code == 200:
-            return True
-        else:
-            return False
+        #return the response
+        return resp
         
          
         

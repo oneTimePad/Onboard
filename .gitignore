@@ -4,3 +4,5 @@ libmvcam/libmvcam.VC.VC.opendb
 libmvcam/Debug/
 libmvcam/DVPCamera/
 telemfile/*.telem
+python/*.pyc
+
