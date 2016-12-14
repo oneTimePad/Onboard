@@ -9,21 +9,9 @@ start the machine vision camera and fetches images
 """
 
 
-def interactive_stop_capture(kill_event):
-	"""
-   while True:
-		print("Type \"KILL\" to kill the imagefetcher process or \"EXIT\" to exit")
-		cmd = new_stdin.readline()
-		if "KILL" == cmd:
-			kill_event.set()
-		elif "EXIT" == cmd:
-			break
-	"""
-	#kill_event.set()
-
 class ImageFetcher(object):
 
-	def __init__(self,image_parameters,storage_dir,storage_prefix):
+	def __init__(self,image_parameters,storage_dir,storage_prefix,trigger_event):
 
 		"""
 		start the image capture process and fetches frames from camera
@@ -55,12 +43,8 @@ class ImageFetcher(object):
 		self.mvCam.open_cam()
 		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
 
-
-		self.kill_event = multiprocessing.Event()
+		self.trigger_event = trigger_event
 		
-		controller = multiprocessing.Process(target=interactive_stop_capture, args=(self.kill_event,))
-		#controller.daemon = True
-		controller.start()
 		
 	def start_capture(self,loop,delay):
 		"""
@@ -71,10 +55,10 @@ class ImageFetcher(object):
 
 
 
-		if self.mvCam.start_cam(loop,delay) != 0:
+		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
 			raise Exception(self.mvCam.dvpStatus)
 		print "started cam loop"
-		while not self.kill_event.is_set(): #while event is not set
+		while self.trigger_event.is_set(): #while event is set
 			image,err = self.mvCam.get_image(self.frame_timeout) # get fram
 
 			if err != 0:
@@ -89,6 +73,6 @@ class ImageFetcher(object):
 		self.mvCam.stop_cam()
 if __name__ == "__main__":
 	#newstdin = os.fdopen(os.dup(sys.stdin.fileno()))
-	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, "C:\\Users\\ruautonomous\\Desktop\\extra-onboard\\nudes\\", "capt")
-	image_fetcher.start_capture(1000000, 1000000)
+	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, "C:\\Users\\ruautonomous\\Desktop\\extra-onboard\\nudes\\", "capt",)
+	image_fetcher.start_capture(1, 1)
 	print "YAY!"

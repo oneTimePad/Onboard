@@ -21,14 +21,12 @@ class ImagePoller(object):
 	'''
 	
 	# Constructor, takes next_image_number (default=1) and image_poll_directory as input
-	def __init__(self, next_image_number, image_poll_directory):
+	def __init__(self, next_image_number, image_poll_directory, telemetry_poll_directory):
 		self.next_image_number = next_image_number
 		self.image_poll_directory = image_poll_directory
-		# if the image poll directory does not end in a file path seperator, append one
-		if (self.image_poll_directory[-1] != '/' and self.image_poll_directory != '\\'):
-			self.image_poll_directory += '/'
+		self.telemetry_poll_directory = telemetry_poll_directory
 		self.next_image_filepath = self.image_poll_directory + "capt" + str(self.next_image_number) + ".jpeg"
-		self.next_telemetry_filepath = self.image_poll_directory + "telem" + str(self.next_image_number) + ".txt"
+		self.next_telemetry_filepath = self.telemetry_poll_directory + "capt" + str(self.next_image_number) + ".telem"
         
         
         
@@ -58,4 +56,4 @@ class ImagePoller(object):
 	def increment(self):
 		self.next_image_number += 1
 		self.next_image_filepath = self.image_poll_directory + "capt" + str(self.next_image_number) + ".jpeg"
-		self.next_telemetry_filepath = self.image_poll_directory + "telem" + str(self.next_image_number) + ".txt"
+		self.next_telemetry_filepath = self.telemetry_poll_directory + "telem" + str(self.next_image_number) + ".txt"

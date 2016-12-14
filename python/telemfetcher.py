@@ -3,7 +3,6 @@ import serial
 import multiprocessing
 import json
 
-print "lol"
 def readline(ser):
 
 	"""
@@ -43,7 +42,11 @@ class TelemFetcher(object):
 
 
 		self.storage_template = storage_template
-		self.image_id = 0
+		"""
+		telem_fetcher makes a blank file before the heartbeats so we initialized image_id = -1 so
+		capt stays sychronize with photos
+		"""
+		self.image_id = -2
 		self.storage_dir = storage_dir
 		self.telem_queue = None
 
@@ -106,13 +109,13 @@ class TelemFetcher(object):
 			if telemetry != "":
 				print(telemetry)
 				self.telem_queue.put(telemetry)
-print "here"
+
 if __name__ == "__main__":
 
 
 	telem_fetcher = TelemFetcher("C:\\Users\\ruautonomous\\Desktop\\Onboard\\telemfile\\", "capt")
-	print "reach here 1"
+	print "reaches here 1"
 	telem_fetcher.start_telemetry_receiver()
 	print "reaches here 2"
 	telem_fetcher.start_serial_listener("COM10", 9600)
-	print "reach here 3"
+	print "reaches here 3"

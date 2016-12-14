@@ -95,7 +95,7 @@ class  DroneAPI:
         headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
         # write the binary data from the file to the request
         data = {'post_timestamp': str(datetime.datetime.now())}
-        endpoint = self.server_url +'/drone/serverContact'
+        endpoint = self.server_url +'/drone/postHeartbeat'
         
         #send the post request
         resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
@@ -117,14 +117,13 @@ class  DroneAPI:
             
         # put metadata + token into the header, im not sure if i did that correctly
         token_label, token_value = self.access_token.toAuthorization()
-        headers = {'Content-Type':'application/json; charset=UTF-8', token_label: token_value}
+        headers = {token_label: token_value}
         # write the binary data from the file to the request
-        data = {'telemetry': open(telemetry_filepath, "r").read(), 'post_timestamp': str(datetime.datetime.now())}
-        files = {'image': open(image_filepath, "rb").read()}
-        endpoint = self.server_url +'/drone/postimage'
+        files = {'image': open(image_filepath, "rb"), 'pitch': (None, "5"), 'roll': (None, "5"), 'lat': (None, "5"), 'lon': (None, "5"), 'alt': (None, "5"), 'yaw': (None, "5")}
+        endpoint = self.server_url +'/drone/postImage'
         
         #send the post request
-        resp = requests.post(endpoint, headers=headers, data=json.dumps(data), files=files)
+        resp = requests.post(endpoint, headers=headers, files=files)
         
         #return the response
         return resp
