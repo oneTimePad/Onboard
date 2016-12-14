@@ -7,14 +7,15 @@ volatile  int lol = 0;
 
 void fct() {
   trigger_state = 1;
+ // Serial.println("LOL"); 
 }
 
-void setup() {
+void setup() { 
 	Serial.begin(9600);
-	while(!Serial); // for arduino micro
+	//while(!Serial); // for arduino micro
   Serial1.begin(57600);
     attachInterrupt(digitalPinToInterrupt(TRIGGER_PIN),fct,FALLING);
-//      pinMode(TRIGGER_PIN,INPUT);
+      pinMode(TRIGGER_PIN,INPUT);
 
 }
 
@@ -30,7 +31,7 @@ void loop() {
   Serial.print("   Yaw: "); Serial.println(attribs.yaw);
 */
 
-//      mav.read();
+     mav.read();
 //  bool current_state = digitalRead(TRIGGER_PIN);
 //  //Serial.println(current_state);
 //  if(current_state != trigger_state) {
@@ -46,10 +47,22 @@ void loop() {
 ////  Serial.print("   Yaw: "); Serial.println(attribs.yaw);
 //    }
 //    }
-
+    //Serial.println(digitalRead(TRIGGER_PIN));
       if (trigger_state) {
         trigger_state = 0;
-        Serial.println(++lol);
+        //Serial.print(++lol);
+        Mavlink::attributes attribs = mav.getAttribs();
+         Serial.print(attribs.lat);
+         Serial.print(',');
+        Serial.print(attribs.lon);
+        Serial.print(',');
+        Serial.print(attribs.rel_alt);
+        Serial.print(',');
+        Serial.print(attribs.roll);
+        Serial.print(',');
+        Serial.print(attribs.pitch);
+        Serial.print(',');
+        Serial.println(attribs.yaw);
       }
   
 }
