@@ -59,7 +59,10 @@ class  DroneAPI:
         headers = {'Content-Type':'application/json; charset=UTF-8'}
         data    = {'password': self.password, 'username': self.username}
         endpoint = self.server_url +'/drone/login'
-        resp = requests.post(endpoint,headers=headers,data=json.dumps(data))
+        try:
+			resp = requests.post(endpoint,headers=headers,data=json.dumps(data))
+        except requests.ConnectionError as e:
+			raise DroneAPICallError(endpoint, e)
 
         if resp.status_code == 200:
             self.access_token = DroneAPIToken(resp.json())
@@ -98,8 +101,10 @@ class  DroneAPI:
         endpoint = self.server_url +'/drone/postHeartbeat'
         
         #send the post request
-        resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
-        
+        try:
+			resp = requests.post(endpoint, headers=headers, data=json.dumps(data))
+        except requests.ConnectionError as e:
+			raise DroneAPICallError(endpoint, e)
         return resp
     
 
@@ -121,9 +126,11 @@ class  DroneAPI:
         # write the binary data from the file to the request
         files = {'image': open(image_filepath, "rb"), 'pitch': (None, "5"), 'roll': (None, "5"), 'lat': (None, "5"), 'lon': (None, "5"), 'alt': (None, "5"), 'yaw': (None, "5")}
         endpoint = self.server_url +'/drone/postImage'
-        
-        #send the post request
-        resp = requests.post(endpoint, headers=headers, files=files)
+        try:
+			#send the post request
+			resp = requests.post(endpoint, headers=headers, files=files)
+        except requests.ConnectionError as e:
+			raise DroneAPICallError(endpoint, e)
         
         #return the response
         return resp

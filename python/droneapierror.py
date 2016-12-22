@@ -28,14 +28,13 @@ exception from api call
 '''
 class DroneAPICallError(Exception):
         
-        def __init__(self,endpoint,message):
+        def __init__(self,endpoint,reason):
             message = '{method} -> Error ({reason})'
             message = message.format(method = endpoint,
-                                     reason = message)
+                                     reason = reason)
             self.call = endpoint
             self.reason = message
             super(DroneAPICallError, self).__init__(message)
         def errorData(self):
             return (self.call,self.reason)
-
 

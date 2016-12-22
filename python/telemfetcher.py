@@ -51,7 +51,6 @@ class TelemFetcher(object):
 		self.telem_queue = None
 
 
-
 	def telemetry_receiver(self,telem_queue):
 
 		"""
@@ -63,7 +62,7 @@ class TelemFetcher(object):
 		while True:
 			self.image_id+=1
 			with open("".join((self.storage_dir,self.storage_template,str(self.image_id),".telem")),"w") as f:
-				telem = telem_queue.get()
+				telem = telem_queue.get(block=True)
 				telem_dict = dict()
 				for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
 					print name
@@ -86,7 +85,7 @@ class TelemFetcher(object):
 		receiver.start()
 		
 
-	def start_serial_listener(self,device_port,baud=9600):
+	def start_serial_listener(self,trigger_event,device_port,baud=9600):
 
 		"""
 		open serial device connection and waits for arduino to output telemetry.
@@ -101,15 +100,20 @@ class TelemFetcher(object):
 
 		if self.telem_queue  is None:
 			raise Exception("Please call start telemetry reciever first")
-
-		serial_listener = serial.Serial(device_port,baud) #non-blocking read
+		while True:
+			try:
+				serial_listener = serial.Serial(device_port,baud) #non-blocking read
+				break
+			except serial.SerialException:
+				continue
 
 		while True:
+			trigger_event.wait()
 			telemetry = readline(serial_listener)
 			if telemetry != "":
 				print(telemetry)
 				self.telem_queue.put(telemetry)
-
+"""
 if __name__ == "__main__":
 
 
@@ -119,3 +123,4 @@ if __name__ == "__main__":
 	print "reaches here 2"
 	telem_fetcher.start_serial_listener("COM10", 9600)
 	print "reaches here 3"
+"""
