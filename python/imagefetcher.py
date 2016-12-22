@@ -2,7 +2,7 @@ from mvcam import MachineVision,MvExposure,MvCamImage
 import multiprocessing
 import os,sys
 
-LIBRARY_LOCATION = "C:\\Users\\ruautonomous\\Desktop\\Onboard\\libmvcam\\Debug\\libmvcam.dll"
+LIBRARY_LOCATION ="../libmvcam/libmvcam.so"
 
 """
 start the machine vision camera and fetches images

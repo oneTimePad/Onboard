@@ -8,9 +8,9 @@ server_ip = "172.27.63.86"
 server_port = "8000"
 username = "drone"
 password = "ruautonomous"
-telem_path = "C:\\Users\\ruautonomous\\Desktop\\Onboard\\telemfile\\"
-image_path = "C:\\Users\\ruautonomous\\Desktop\\Onboard\\nudes\\"
-com_port = "COM10"
+telem_path = "/home/ruautonomous/telemfiles"
+image_path = "/home/ruautonomous/pictures"
+com_port = "/dev/ttyACM0"
 file_prefix = "capt"
 
 server_info = {"server_ip": server_ip, "server_port": server_port, "username": username, "password": password}
@@ -28,8 +28,8 @@ if __name__ == "__main__":
 	#telem_fetcher_process.daemon = True
 	telem_fetcher_process.start()
 
-	#image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, image_path, file_prefix,trigger_event)
-	#while True:
-	#	trigger_start_event.wait() # image_fetcher.start_capture continues as long as the event is set
-	#	image_fetcher.start_capture(1, 1)
+	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, image_path, file_prefix,trigger_event)
+	while True:
+		trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
+		image_fetcher.start_capture(1, 1)
 	
