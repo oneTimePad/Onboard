@@ -45,7 +45,8 @@ class ImageFetcher(object):
 
 		self.trigger_event = trigger_event
 		
-		
+	def stop_capture(self):
+		self.mvCam.stop_cam()
 	def start_capture(self,loop,delay):
 		"""
 		starts up the machine vision camera capturing, fetches frames from
@@ -71,8 +72,4 @@ class ImageFetcher(object):
 
 			print("But save_image returned", self.mvCam.save_image(image,self.jpeg_quality))
 		self.mvCam.stop_cam()
-if __name__ == "__main__":
-	#newstdin = os.fdopen(os.dup(sys.stdin.fileno()))
-	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, "C:\\Users\\ruautonomous\\Desktop\\extra-onboard\\nudes\\", "capt",)
-	image_fetcher.start_capture(1, 1)
-	print "YAY!"
+		print "closed camera"

@@ -49,6 +49,8 @@ class Uploader():
 				print("Received incorrect padding, trying to log in again")
 			except DroneAPICallError as e:
 				print e
+			except KeyboardInterrupt:
+				return
 		print("Successfully logged in to " + server_url + " at " + str(datetime.datetime.now().time()))
 
 
@@ -66,6 +68,8 @@ class Uploader():
 				print e
 				time.sleep(heartbeat_delay)
 				continue
+			except KeyboardInterrupt:
+				return
 			time2 = datetime.datetime.now().time()
 			print("Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(heartbeat_response.status_code))
 			if currently_triggering == False:

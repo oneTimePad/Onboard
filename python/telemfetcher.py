@@ -59,16 +59,17 @@ class TelemFetcher(object):
 		telem_queue:= multiprocessing.Queue where telemetry is enqueued`
 
 		"""
-		while True:
-			self.image_id+=1
-			with open("".join((self.storage_dir,self.storage_template,str(self.image_id),".telem")),"w") as f:
-				telem = telem_queue.get(block=True)
-				telem_dict = dict()
-				for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
-					print name
-					telem_dict[name] = value
-				print(telem_dict)
-				f.write(json.dumps(telem_dict))
+		try:
+			while True:
+				self.image_id+=1
+				with open("".join((self.storage_dir,self.storage_template+str(self.image_id)+".telem")),"w") as f:
+					telem = telem_queue.get(block=True)
+					telem_dict = dict()
+					for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
+						telem_dict[name] = value
+					f.write(json.dumps(telem_dict))
+		except KeyboardInterrupt:
+			return
 
 	def start_telemetry_receiver(self):
 
@@ -97,22 +98,26 @@ class TelemFetcher(object):
 		baud := serial communication rate, default is 9600
 
 		"""
+		try:
+			if self.telem_queue  is None:
+				raise Exception("Please call start telemetry reciever first")
+			while True:
+				try:
+					serial_listener = serial.Serial(device_port,baud) #non-blocking read
+					break
+				except serial.SerialException:
+					continue
+				except KeyboardInterrupt:
+					return
 
-		if self.telem_queue  is None:
-			raise Exception("Please call start telemetry reciever first")
-		while True:
-			try:
-				serial_listener = serial.Serial(device_port,baud) #non-blocking read
-				break
-			except serial.SerialException:
-				continue
-
-		while True:
-			trigger_event.wait()
-			telemetry = readline(serial_listener)
-			if telemetry != "":
-				print(telemetry)
-				self.telem_queue.put(telemetry)
+			while True:
+				trigger_event.wait()
+				telemetry = readline(serial_listener)
+				if telemetry != "":
+					print(telemetry)
+					self.telem_queue.put(telemetry)
+		except KeyboardInterrupt:
+			return
 """
 if __name__ == "__main__":
 

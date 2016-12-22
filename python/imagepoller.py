@@ -56,4 +56,4 @@ class ImagePoller(object):
 	def increment(self):
 		self.next_image_number += 1
 		self.next_image_filepath = self.image_poll_directory + "capt" + str(self.next_image_number) + ".jpeg"
-		self.next_telemetry_filepath = self.telemetry_poll_directory + "telem" + str(self.next_image_number) + ".txt"
+		self.next_telemetry_filepath = self.telemetry_poll_directory + "capt" + str(self.next_image_number) + ".telem"
