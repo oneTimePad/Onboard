@@ -32,12 +32,14 @@ class ImagePoller(object):
         
 	# returns True if the next image is ready to be posted, returns False otherwise
 	def next_image_isready(self):
-		if os.path.isfile(self.next_image_filepath)==False or os.path.isfile(self.next_telemetry_filepath)==False:
+		print "POLLING FOR : " +self.next_image_filepath
+		print os.path.isfile(self.next_image_filepath)
+		if os.path.isfile(self.next_image_filepath)==False:
 			return False
 		# if the telemetry file exists but is empty, just skip over it
-		if os.path.getsize(self.next_telemetry_filepath) == 0:
-			self.increment()
-			return False
+		#if os.path.getsize(self.next_telemetry_filepath) == 0:
+		#	self.increment()
+		#	return False
 		return True
     
 	# exposes next_image_number
@@ -56,4 +58,5 @@ class ImagePoller(object):
 	def increment(self):
 		self.next_image_number += 1
 		self.next_image_filepath = self.image_poll_directory + "capt" + str(self.next_image_number) + ".jpeg"
+		print self.next_image_filepath
 		self.next_telemetry_filepath = self.telemetry_poll_directory + "capt" + str(self.next_image_number) + ".telem"

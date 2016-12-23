@@ -4,7 +4,7 @@ from telemfetcher import TelemFetcher
 from uploader import Uploader
 import time
 import sys
-server_ip = "172.27.63.86"
+server_ip = "192.168.1.171"
 server_port = "8000"
 username = "drone"
 password = "ruautonomous"
@@ -27,7 +27,7 @@ if __name__ == "__main__":
 	telem_fetcher_process.daemon = True
 	telem_fetcher_process.start()
 	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain":2.0,"frame_timeout": 5000, "jpeg_quality":100,"aemode": 3, "aeop": 2}, image_path,file_prefix,trigger_event)
-	trigger_event.set()
+	#trigger_event.set()
 	while True:
 		trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
 		try:

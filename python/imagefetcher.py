@@ -70,6 +70,9 @@ class ImageFetcher(object):
 			print name
 			image.set_name(name)
 
-			print("But save_image returned", self.mvCam.save_image(image,self.jpeg_quality))
+			err = self.mvCam.save_image(image,self.jpeg_quality)
+			if err !=1:
+				print "SAVE _IMAGE RETURNED", err, "for",name
+			
 		self.mvCam.stop_cam()
 		print "closed camera"

@@ -5,7 +5,7 @@ This file uses an ImagePoller object to poll and a DroneAPI object to send the h
 
 import sys
 from imagepoller import ImagePoller
-from droneapi import DroneAPI
+from droneapi import DroneAPI, DroneAPICallError
 import time
 import datetime
 
@@ -46,9 +46,11 @@ class ImagePoster(object):
 			telem_filepath = image_poller.get_next_telemetry_filepath()
 			print("Polling for capt" + str(next_image_number) + ".jpeg and capt" + str(next_image_number) + ".telem at " + str(time1))
 			if image_poller.next_image_isready():
+				print "READY"
 				posted = False
 				while (posted == False):
 					try:
+						print "posting" + img_filepath
 						imgpost_response = drone_api.postImage(img_filepath, telem_filepath)
 						posted = True
 					except DroneAPICallError as e:
@@ -57,6 +59,7 @@ class ImagePoster(object):
 				print("Posted image at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(imgpost_response.status_code))
 				image_poller.increment()
 			else:
+				print "sleeping"
 				time.sleep(poll_delay)
 
 
