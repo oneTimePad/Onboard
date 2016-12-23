@@ -1,39 +1,6 @@
 // libmvcam.cpp : Defines the exported functions for the DLL application.
-//
-
 #include <stdio.h>
-#include "stdafx.h"
-#include "libmvcam.h"
-
-/*
-// This is an example of an exported variable
-LIBMVCAM_API int nlibmvcam=0;
-
-// This is an example of an exported function.
-LIBMVCAM_API int fnlibmvcam(void)
-{
-return 42;
-}
-
-// This is the constructor of a class that has been exported.
-// see libmvcam.h for the class definition
-Clibmvcam::Clibmvcam()
-{
-return;
-}*/
-
-
-#include "stdafx.h"
-#include "libmvcam.h"
-
-
-
-#ifdef _M_X64
-#pragma comment(lib, "../DVPCamera/DVPCamera64.lib")
-#else
-#pragma comment(lib, "../DVPCamera/DVPCamera.lib")
-#endif
-
+#include "mvcam.h"
 
 
 
