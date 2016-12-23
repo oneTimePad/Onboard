@@ -27,8 +27,7 @@ if __name__ == "__main__":
 	telem_fetcher_process = multiprocessing.Process(target=telem_fetcher.start_serial_listener, args=(trigger_event,com_port, 9600))
 	#telem_fetcher_process.daemon = True
 	telem_fetcher_process.start()
-
-	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, image_path, file_prefix,trigger_event)
+	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain":2.0,"frame_timeout": 5000, "jpeg_quality":100,"aemode": 3, "aeop": 2}, image_path,file_prefix,trigger_event)
 	while True:
 		trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
 		image_fetcher.start_capture(1, 1)
