@@ -15,11 +15,11 @@ def readline(ser):
 
 	string = ""
 	while True:
-		print "ENTERING"
+		#print "ENTERING"
 		ch = ser.read()
-		print("READ",ch)
+		#print("READ",ch)
 		if(ch == '\n' or ch == ''):
-			print "BROKE"
+			#print "BROKE"
 			break
 		string += ch
 	return string
@@ -116,13 +116,13 @@ class TelemFetcher(object):
 
 			while True:
 				#pdb.set_trace()
-				print "WAITING:::"
+				#print "WAITING:::"
 				trigger_event.wait()
-				print "LEAVING"
+				#print "LEAVING"
 				telemetry = readline(serial_listener)
-				print "READ"
+				#print "READ"
 				if telemetry != "":
-					print("GOT:",telemetry)
+					#print("GOT:",telemetry)
 					self.telem_queue.put(telemetry)
 		except KeyboardInterrupt:
 			print "TITTIES"

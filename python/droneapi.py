@@ -119,11 +119,13 @@ class  DroneAPI:
 		headers = {token_label: token_value}
 		# write the binary data from the file to the request
 		files = {'image': open(image_filepath,'rb')}
-		files.update(telem_data)
+		#files.update(telem_data)
+		print(telem_data)
+		#print(files['yaw'])
 		endpoint = self.server_url +'/drone/postImage'
 		try:
 			#send the post request
-			resp = requests.post(endpoint, headers=headers, files=files)
+			resp = requests.post(endpoint, headers=headers, files=files,data=telem_data)
 		except requests.ConnectionError as e:
 			raise DroneAPICallError(endpoint, e)
         #return the response

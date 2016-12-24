@@ -5,7 +5,7 @@ from mvcam import MvAeMode,MvAeOp,MvStrobeOutput,MvStrobeDriver
 import time
 import sys
 import os
-server_ip = "192.168.1.224"
+server_ip = "192.168.1.171"
 server_port = "8000"
 username = "drone"
 password = "ruautonomous"
