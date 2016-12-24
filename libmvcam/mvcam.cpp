@@ -93,6 +93,45 @@ mvStatus mvCamOpenDef(dvpHandle *handle, dvpStatus *ret_stat) {
 
 }
 
+mvStatus mvCamSetStrobe(dvpHandle *handle,mvStrobe strobe,dvpStatus *ret_stat){
+	dvpStatus status;
+	dvpStrobeDriver strobe_driver = strobe.mvstrb_driver;
+	dvpStrobeOutputType strobe_output = strobe.mvstrb_output;
+	double strobe_duration = strobe.mvstrb_duration;
+	double strobe_delay = strobe.mvstrb_delay;
+	//printf("duration: %f, driver %d, output, %d\n",strobe_duration,strobe_driver,strobe_output);
+/*	if((status = dvpSetStrobeDriver(*handle,strobe_driver)) != DVP_STATUS_OK){
+		*ret_stat = status;
+		return MV_DVP_ERROR;
+	}*/
+	
+	if((status = dvpSetStrobeOutputType(*handle,strobe_output)) != DVP_STATUS_OK){
+		*ret_stat = status;
+		return MV_DVP_ERROR;
+	}
+/*	
+	if((status = dvpSetStrobeDuration(*handle,strobe_duration)) != DVP_STATUS_OK){
+		*ret_stat = status;
+		return MV_DVP_ERROR;
+	}
+*/
+	if((status = dvpSetStrobeDelay(*handle,strobe_delay)) != DVP_STATUS_OK){
+		*ret_stat = status;
+		return MV_DVP_ERROR;
+	}
+
+	if((status = dvpSetOutputIoFunction(*handle,OUTPUT_IO_1,OUTPUT_FUNCTION_STROBE)) != DVP_STATUS_OK){
+		*ret_stat = status;
+		return MV_DVP_ERROR;
+	}
+/*
+	if((status = dvpSetOutputIoLevel(*handle,OUTPUT_IO_1,TRUE))!= DVP_STATUS_OK){
+		*ret_stat = status;
+		return MV_DVP_ERROR;
+	}*/
+	return MV_OK;
+
+}
 
 mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat) {
 	dvpStatus status;
@@ -269,7 +308,7 @@ mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, 
 		printf("ERROR\n");
 	}
 	else {
-		printf("GAIN: %f\n", gain);
+		//printf("GAIN: %f\n", gain);
 	}
 
 	status = dvpGetFrame(*handle, &image->frame, &image->image_buffer, timeout);
