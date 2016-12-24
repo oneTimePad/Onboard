@@ -89,7 +89,9 @@ class MachineVision:
 	
 	def stop_cam(self):
 		return int(self.libHandle.mvCamStopTrigger(byref(self.dvpHandle),byref(self.dvpStatus)))
-	
+	def close_cam(self):
+		return int(self.libHandle.mvCamDestroy(byref(self.dvpHandle),byref(self.dvpStatus)))
+
 		
 		
 		

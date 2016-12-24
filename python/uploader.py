@@ -8,7 +8,7 @@ import datetime
 import multiprocessing
 import json
 from imageposter import ImagePoster
-
+from telemfetcher import TelemFetcher
 
 class Uploader():
 
@@ -25,17 +25,17 @@ class Uploader():
 
     #called by multiprocessing.Process.start
 
-	def run_uploader(self, trigger_event):
+	def run_uploader(self, trigger_event,serial_port):
 		server_ip = self.server_info["server_ip"]
 		server_port = self.server_info["server_port"]
 		username = self.server_info["username"]
 		password = self.server_info["password"]
-		next_image_number = self.dir_info["next_image_number"]
-		image_poll_directory = self.dir_info["image_poll_directory"]
-		telemetry_poll_directory = self.dir_info["telemetry_poll_directory"]
+		#next_image_number = self.dir_info["next_image_number"]
+		#image_poll_directory = self.dir_info["image_poll_directory"]
+		#telemetry_poll_directory = self.dir_info["telemetry_poll_directory"]
 		poll_delay = self.sleep_info["poll_delay"]
 		heartbeat_delay = self.sleep_info["heartbeat_delay"]
-		
+		#image_prefix = self.dir_info["image_prefix"]
 		
 		#login to the ground station
 		server_url = "http://"+server_ip+":"+server_port
@@ -60,6 +60,11 @@ class Uploader():
 		poster_process = multiprocessing.Process(target=poster.startPosting, args=[trigger_event])
 		poster_process.daemon = True
 		poster_process.start()
+		telem = TelemFetcher(self.dir_info)
+		telem.start_telemetry_receiver()
+		telem_process = multiprocessing.Process(target=telem.start_serial_listener,args=(trigger_event,serial_port))
+		telem_process.daemon = True
+		telem_process.start()
 		while(True):
 			time1 = datetime.datetime.now().time()
 			try:

@@ -25,7 +25,8 @@ class ImagePoster(object):
 		self.telemetry_poll_directory = self.dir_info["telemetry_poll_directory"]
 		self.drone_api = drone_api
 		self.poll_delay = poll_delay
-		self.image_poller = ImagePoller(self.next_image_number, self.image_poll_directory, self.telemetry_poll_directory)
+		self.image_prefix = self.dir_info["file_prefix"]
+		self.image_poller = ImagePoller(self.next_image_number, self.image_poll_directory, self.telemetry_poll_directory,self.image_prefix)
     #TODO called by multiprocess.Process.start
 	def startPosting(self, trigger_event):
         #starts the process of polling and posting images and telemtry to server

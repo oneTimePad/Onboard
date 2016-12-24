@@ -31,8 +31,9 @@ class TelemFetcher(object):
 
 	"""
 
-	def __init__(self,storage_dir,storage_template):
-
+	def __init__(self,dir_info):
+		self.storage_dir = dir_info["telemetry_poll_directory"]
+		self.image_id = dir_info["next_image_number"]
 		"""
 		image_id := id to save telem files with
 		storage_dir:= full/path/to/image/directory/[capt]
@@ -41,13 +42,13 @@ class TelemFetcher(object):
 
 
 
-		self.storage_template = storage_template
+		self.storage_template = dir_info["file_prefix"]
 		"""
 		telem_fetcher makes a blank file before the heartbeats so we initialized image_id = -1 so
 		capt stays sychronize with photos
 		"""
-		self.image_id = -2
-		self.storage_dir = storage_dir
+		#self.image_id = -2
+		#self.storage_dir = storage_dir
 		self.telem_queue = None
 
 

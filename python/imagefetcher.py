@@ -11,7 +11,7 @@ start the machine vision camera and fetches images
 
 class ImageFetcher(object):
 
-	def __init__(self,image_parameters,storage_dir,storage_prefix,trigger_event):
+	def __init__(self,image_parameters,dir_info,trigger_event):
 
 		"""
 		start the image capture process and fetches frames from camera
@@ -36,10 +36,10 @@ class ImageFetcher(object):
 		self.aeop = image_parameters["aeop"]
 
 
-		self.image_id = 0
-		self.mvCam = MachineVision(LIBRARY_LOCATION,storage_dir)
-		self.storage_dir = storage_dir
-		self.storage_prefix = storage_prefix
+		self.image_id =dir_info["next_image_number"]
+		self.mvCam = MachineVision(LIBRARY_LOCATION,dir_info["image_poll_directory"])
+		self.storage_dir = dir_info["image_poll_directory"]
+		self.storage_prefix = dir_info["file_prefix"]
 		self.mvCam.open_cam()
 		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
 
@@ -47,6 +47,8 @@ class ImageFetcher(object):
 		
 	def stop_capture(self):
 		self.mvCam.stop_cam()
+		self.mvCam.close_cam()
+		print "closed camera"
 	def start_capture(self,loop,delay):
 		"""
 		starts up the machine vision camera capturing, fetches frames from
@@ -58,7 +60,7 @@ class ImageFetcher(object):
 
 		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
 			raise Exception(self.mvCam.dvpStatus)
-		print "started cam loop"
+		#print "started cam loop"
 		while self.trigger_event.is_set(): #while event is set
 			image,err = self.mvCam.get_image(self.frame_timeout) # get fram
 
@@ -71,8 +73,8 @@ class ImageFetcher(object):
 			image.set_name(name)
 
 			err = self.mvCam.save_image(image,self.jpeg_quality)
-			if err !=1:
-				print "SAVE _IMAGE RETURNED", err, "for",name
+			#if err !=1:
+			#	print "SAVE _IMAGE RETURNED", err, "for",name
 			
 		self.mvCam.stop_cam()
-		print "closed camera"
+		print "stopped camera"
