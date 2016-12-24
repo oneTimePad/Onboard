@@ -25,7 +25,7 @@ class Uploader():
 
     #called by multiprocessing.Process.start
 
-	def run_uploader(self, trigger_event,serial_port):
+	def run_uploader(self, trigger_event,serial_port,camera_trigger_params):
 		server_ip = self.server_info["server_ip"]
 		server_port = self.server_info["server_port"]
 		username = self.server_info["username"]

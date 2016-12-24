@@ -1,4 +1,4 @@
-from mvcam import MachineVision,MvExposure,MvCamImage
+from mvcam import MachineVision,MvExposure,MvStrobe,MvCamImage
 import multiprocessing
 import os,sys
 
@@ -42,20 +42,20 @@ class ImageFetcher(object):
 		self.storage_prefix = dir_info["file_prefix"]
 		self.mvCam.open_cam()
 		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
-
+		self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"]))
 		self.trigger_event = trigger_event
 		
 	def stop_capture(self):
 		self.mvCam.stop_cam()
 		self.mvCam.close_cam()
 		print "closed camera"
-	def start_capture(self,loop,delay):
+	def start_capture(self,queue):
 		"""
 		starts up the machine vision camera capturing, fetches frames from
 		camera and saves them
 
 		"""
-
+		loop,delay = queue.get(block=True)
 
 		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
 			raise Exception(self.mvCam.dvpStatus)
@@ -68,7 +68,7 @@ class ImageFetcher(object):
 
 			#self.image_id +=1
 			name = "".join((self.storage_dir,self.storage_prefix,str(self.image_id),".jpeg"))
-			print name
+			#print name
 			image.set_name(name)
 
 			err = self.mvCam.save_image(image,self.jpeg_quality)
