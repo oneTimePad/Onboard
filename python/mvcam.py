@@ -38,16 +38,18 @@ class mvStrobe(Structure):
 	_fields_ = [
 		("mvstrb_duration",c_double),
 		("mvstrb_output",c_int),
-		("mvstrb_driver",c_int)
+		("mvstrb_driver",c_int),
+		("mvstrb_delay",c_double)
 	]
 
 
 class MvStrobe(object):
-	def __init__(self,duration,output,driver):
+	def __init__(self,duration,output,driver,delay):
 		self.strb = mvStrobe()
 		self.strb.mvstrb_duration = c_double(duration)
 		self.strb.mvstrb_output = c_int(output)
 		self.strb.mvstrb_driver = c_int(driver)
+		self.strb.mvstrb_delay = c_double(delay)
 		self._as_parameter_ = self.strb
 class MvExposure(object):
 	def __init__(self, aflick = 0, shutter = 400, aemode =0, aeop= 0, aetarget

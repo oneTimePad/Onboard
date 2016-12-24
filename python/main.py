@@ -17,7 +17,7 @@ file_prefix = "capt"
 server_info = {"server_ip": server_ip, "server_port": server_port, "username": username, "password": password}
 dir_info = {"next_image_number": 1, "image_poll_directory": image_path, "telemetry_poll_directory": telem_path,"file_prefix":file_prefix}
 delay_info = {"poll_delay": 5, "heartbeat_delay": 5}
-cam_info={"shutter_speed":33000,"gain":2.0,"frame_timeout":5000,"jpeg_quality":100,"aemode":MvAeMode().AE_MODE_AG_ONLY,"aeop":MvAeOp().AE_OP_CONTINUOUS,"strobe_duration":100000.0,"strobe_output":MvStrobeOutput().STROBE_OUT_HIGH,"strobe_driver":MvStrobeDriver().SENSOR_STROBE}
+cam_info={"shutter_speed":400,"gain":2.0,"frame_timeout":5000,"jpeg_quality":100,"aemode":MvAeMode().AE_MODE_AG_ONLY,"aeop":MvAeOp().AE_OP_OFF,"strobe_delay":1000000.0,"strobe_duration":100.0,"strobe_output":MvStrobeOutput().STROBE_OUT_HIGH,"strobe_driver":MvStrobeDriver().TIMER_LOGIC}
 
 def find_next_image_num():
 	image_num = 1

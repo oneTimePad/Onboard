@@ -42,7 +42,8 @@ class ImageFetcher(object):
 		self.storage_prefix = dir_info["file_prefix"]
 		self.mvCam.open_cam()
 		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
-		self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"]))
+		val = self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"],image_parameters["strobe_delay"]))
+		print("RETURNED:", val)
 		self.trigger_event = trigger_event
 		
 	def stop_capture(self):
