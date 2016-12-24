@@ -79,7 +79,9 @@ class Uploader():
 			print("Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(heartbeat_response.status_code))
 			if currently_triggering == False:
 				if json.loads(heartbeat_response.text).get("heartbeat") == 1:	#check for the "start triggering" signal
-					print("Trigger signal Received!") 
+					print("Trigger signal Received!")
+					resp_json = json.loads(heartbeat_response.text)
+					camera_trigger_params.put((float(resp_json["loop"]),float(resp_json["delay"])))
 					trigger_event.set()
 					currently_triggering = True
 			if currently_triggering == True:

@@ -39,7 +39,7 @@ if __name__ == "__main__":
 	#telem_fetcher_process.start()
 	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
 	#trigger_event.set()
-	camera_trigger_params.put((1,1))
+	#camera_trigger_params.put((1,1))
 	while True:
 		try:
 			trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set

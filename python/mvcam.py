@@ -122,6 +122,7 @@ class MachineVision:
 		delay = c_double(delay)
 		#loop = c_double((1/fps)*1000000)
 		loop = c_float(loop)
+		print str(loop),str(delay)
 		return int(self.libHandle.mvCamStartTrigger(byref(self.dvpHandle),loop,delay,byref(self.dvpStatus)))
 	
 	
