@@ -57,7 +57,6 @@ class ImageFetcher(object):
 		"""
 
 
-
 		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
 			raise Exception(self.mvCam.dvpStatus)
 		#print "started cam loop"
@@ -67,7 +66,7 @@ class ImageFetcher(object):
 			if err != 0:
 				raise Exception(self.mvCam.dvpStatus)
 
-			self.image_id +=1
+			#self.image_id +=1
 			name = "".join((self.storage_dir,self.storage_prefix,str(self.image_id),".jpeg"))
 			print name
 			image.set_name(name)
@@ -75,6 +74,6 @@ class ImageFetcher(object):
 			err = self.mvCam.save_image(image,self.jpeg_quality)
 			#if err !=1:
 			#	print "SAVE _IMAGE RETURNED", err, "for",name
-			
+			self.image_id+=1
 		self.mvCam.stop_cam()
 		print "stopped camera"

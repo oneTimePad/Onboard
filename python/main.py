@@ -37,9 +37,10 @@ if __name__ == "__main__":
 	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain":2.0,"frame_timeout": 5000, "jpeg_quality":100,"aemode": 3, "aeop": 2}, dir_info,trigger_event)
 	#trigger_event.set()
 	while True:
-		trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
 		try:
+			trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
 			image_fetcher.start_capture(1, 1)
 		except KeyboardInterrupt:
+			print "CLOSING!"
 			image_fetcher.stop_capture()
 			sys.exit(0)

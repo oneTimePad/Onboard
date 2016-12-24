@@ -112,7 +112,7 @@ class  DroneAPI:
 		try:
 			with open(telemetry_filepath) as telem_file:
 				telem_data = json.load(telem_file)
-		except IOError:
+		except (IOError,ValueError):
 			telem_data = {name:(None,"0") for name in ['pitch','roll','lat','lon','alt','yaw']}
 		# put metadata + token into the header, im not sure if i did that correctly
 		token_label, token_value = self.access_token.toAuthorization()
