@@ -31,7 +31,7 @@ mvStatus mvCamOpen(char *camName, dvpHandle *handle, dvpStatus *ret_stat) {
 		*ret_stat = status;
 		return MV_DVP_ERROR;
 	}
-
+	
 	return isValidHandle(handle, ret_stat);
 }
 
@@ -94,6 +94,14 @@ mvStatus mvCamOpenDef(dvpHandle *handle, dvpStatus *ret_stat) {
 }
 
 mvStatus mvCamSetStrobe(dvpHandle *handle,mvStrobe strobe,dvpStatus *ret_stat){
+	dvpUint32 color; 
+	//dvpGetColorSolutionSel(*handle,&color);	
+	dvpSetColorSolutionSel(*handle,3);
+	dvpGetColorSolutionSel(*handle,&color);
+	dvpSelectionDescr desc;
+	dvpGetColorSolutionSelDescr(*handle,&desc);
+	printf("%d\n",desc.uCount);
+	printf("COLOR %d\n",color);
 	dvpStatus status;
 	dvpStrobeDriver strobe_driver = strobe.mvstrb_driver;
 	dvpStrobeOutputType strobe_output = strobe.mvstrb_output;

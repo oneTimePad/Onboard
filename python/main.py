@@ -5,7 +5,7 @@ from mvcam import MvAeMode,MvAeOp,MvStrobeOutput,MvStrobeDriver
 import time
 import sys
 import os
-server_ip = "192.168.1.171"
+server_ip = "192.168.1.224"
 server_port = "8000"
 username = "drone"
 password = "ruautonomous"
@@ -17,7 +17,7 @@ file_prefix = "capt"
 server_info = {"server_ip": server_ip, "server_port": server_port, "username": username, "password": password}
 dir_info = {"next_image_number": 1, "image_poll_directory": image_path, "telemetry_poll_directory": telem_path,"file_prefix":file_prefix}
 delay_info = {"poll_delay": 5, "heartbeat_delay": 5}
-cam_info={"shutter_speed":400,"gain":2.0,"frame_timeout":5000,"jpeg_quality":100,"aemode":MvAeMode().AE_MODE_AG_ONLY,"aeop":MvAeOp().AE_OP_OFF,"strobe_delay":1000000.0,"strobe_duration":100.0,"strobe_output":MvStrobeOutput().STROBE_OUT_HIGH,"strobe_driver":MvStrobeDriver().TIMER_LOGIC}
+cam_info={"shutter_speed":400,"gain":1.0,"frame_timeout":5000,"jpeg_quality":100,"aemode":MvAeMode().AE_MODE_AG_ONLY,"aeop":MvAeOp().AE_OP_OFF,"strobe_delay":1000000.0,"strobe_duration":100.0,"strobe_output":MvStrobeOutput().STROBE_OUT_HIGH,"strobe_driver":MvStrobeDriver().TIMER_LOGIC}
 
 def find_next_image_num():
 	image_num = 1
@@ -39,7 +39,7 @@ if __name__ == "__main__":
 	#telem_fetcher_process.start()
 	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
 	#trigger_event.set()
-	camera_trigger_params.put((.3,.5))
+	camera_trigger_params.put((1,1))
 	while True:
 		try:
 			trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
