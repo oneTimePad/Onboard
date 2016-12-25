@@ -1,4 +1,4 @@
-from mvcam import MachineVision,MvExposure,MvCamImage
+from mvcam import MachineVision,MvExposure,MvStrobe,MvCamImage
 import multiprocessing
 import os,sys
 
@@ -11,7 +11,7 @@ start the machine vision camera and fetches images
 
 class ImageFetcher(object):
 
-	def __init__(self,image_parameters,storage_dir,storage_prefix,trigger_event):
+	def __init__(self,image_parameters,dir_info,trigger_event):
 
 		"""
 		start the image capture process and fetches frames from camera
@@ -36,43 +36,45 @@ class ImageFetcher(object):
 		self.aeop = image_parameters["aeop"]
 
 
-		self.image_id = 0
-		self.mvCam = MachineVision(LIBRARY_LOCATION,storage_dir)
-		self.storage_dir = storage_dir
-		self.storage_prefix = storage_prefix
+		self.image_id =dir_info["next_image_number"]
+		self.mvCam = MachineVision(LIBRARY_LOCATION,dir_info["image_poll_directory"])
+		self.storage_dir = dir_info["image_poll_directory"]
+		self.storage_prefix = dir_info["file_prefix"]
 		self.mvCam.open_cam()
 		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
-
+		val = self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"],image_parameters["strobe_delay"]))
+		print("RETURNED:", val)
 		self.trigger_event = trigger_event
 		
-		
-	def start_capture(self,loop,delay):
+	def stop_capture(self):
+		self.mvCam.stop_cam()
+		self.mvCam.close_cam()
+		print "closed camera"
+	def start_capture(self,queue):
 		"""
 		starts up the machine vision camera capturing, fetches frames from
 		camera and saves them
 
 		"""
-
-
+		loop,delay = queue.get(block=True)
 
 		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
 			raise Exception(self.mvCam.dvpStatus)
-		print "started cam loop"
+		#print "started cam loop"
 		while self.trigger_event.is_set(): #while event is set
 			image,err = self.mvCam.get_image(self.frame_timeout) # get fram
 
 			if err != 0:
 				raise Exception(self.mvCam.dvpStatus)
 
-			self.image_id +=1
+			#self.image_id +=1
 			name = "".join((self.storage_dir,self.storage_prefix,str(self.image_id),".jpeg"))
-			print name
+			#print name
 			image.set_name(name)
 
-			print("But save_image returned", self.mvCam.save_image(image,self.jpeg_quality))
+			err = self.mvCam.save_image(image,self.jpeg_quality)
+			#if err !=1:
+			#	print "SAVE _IMAGE RETURNED", err, "for",name
+			self.image_id+=1
 		self.mvCam.stop_cam()
-if __name__ == "__main__":
-	#newstdin = os.fdopen(os.dup(sys.stdin.fileno()))
-	image_fetcher = ImageFetcher({"shutter_speed": 33000, "gain": 2.0, "frame_timeout": 5000, "jpeg_quality": 100, "aemode": 3, "aeop": 2}, "C:\\Users\\ruautonomous\\Desktop\\extra-onboard\\nudes\\", "capt",)
-	image_fetcher.start_capture(1, 1)
-	print "YAY!"
+		print "stopped camera"

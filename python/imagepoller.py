@@ -21,23 +21,25 @@ class ImagePoller(object):
 	'''
 	
 	# Constructor, takes next_image_number (default=1) and image_poll_directory as input
-	def __init__(self, next_image_number, image_poll_directory, telemetry_poll_directory):
+	def __init__(self, next_image_number, image_poll_directory, telemetry_poll_directory,image_prefix):
 		self.next_image_number = next_image_number
 		self.image_poll_directory = image_poll_directory
 		self.telemetry_poll_directory = telemetry_poll_directory
-		self.next_image_filepath = self.image_poll_directory + "capt" + str(self.next_image_number) + ".jpeg"
-		self.next_telemetry_filepath = self.telemetry_poll_directory + "capt" + str(self.next_image_number) + ".telem"
-        
+		self.next_image_filepath = self.image_poll_directory +image_prefix + str(self.next_image_number) + ".jpeg"
+		self.next_telemetry_filepath = self.telemetry_poll_directory + image_prefix + str(self.next_image_number) + ".telem"
+		self.image_prefix = image_prefix
         
         
 	# returns True if the next image is ready to be posted, returns False otherwise
 	def next_image_isready(self):
-		if os.path.isfile(self.next_image_filepath)==False or os.path.isfile(self.next_telemetry_filepath)==False:
+		#print "POLLING FOR : " +self.next_image_filepath
+		#print os.path.isfile(self.next_image_filepath)
+		if os.path.isfile(self.next_image_filepath)==False:
 			return False
 		# if the telemetry file exists but is empty, just skip over it
-		if os.path.getsize(self.next_telemetry_filepath) == 0:
-			self.increment()
-			return False
+		#if os.path.getsize(self.next_telemetry_filepath) == 0:
+		#	self.increment()
+		#	return False
 		return True
     
 	# exposes next_image_number
@@ -55,5 +57,6 @@ class ImagePoller(object):
 	# incrememnts next_image_number and recomputes next_image_filepath
 	def increment(self):
 		self.next_image_number += 1
-		self.next_image_filepath = self.image_poll_directory + "capt" + str(self.next_image_number) + ".jpeg"
-		self.next_telemetry_filepath = self.telemetry_poll_directory + "telem" + str(self.next_image_number) + ".txt"
+		self.next_image_filepath = self.image_poll_directory + self.image_prefix+ str(self.next_image_number) + ".jpeg"
+		#print self.next_image_filepath
+		self.next_telemetry_filepath = self.telemetry_poll_directory + self.image_prefix + str(self.next_image_number) + ".telem"

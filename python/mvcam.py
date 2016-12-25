@@ -33,6 +33,24 @@ class mvExposure(Structure):
 		("mvexp_awop", c_int),
 		("mvexp_gain",c_float)
 	]
+
+class mvStrobe(Structure):
+	_fields_ = [
+		("mvstrb_duration",c_double),
+		("mvstrb_output",c_int),
+		("mvstrb_driver",c_int),
+		("mvstrb_delay",c_double)
+	]
+
+
+class MvStrobe(object):
+	def __init__(self,duration,output,driver,delay):
+		self.strb = mvStrobe()
+		self.strb.mvstrb_duration = c_double(duration)
+		self.strb.mvstrb_output = c_int(output)
+		self.strb.mvstrb_driver = c_int(driver)
+		self.strb.mvstrb_delay = c_double(delay)
+		self._as_parameter_ = self.strb
 class MvExposure(object):
 	def __init__(self, aflick = 0, shutter = 400, aemode =0, aeop= 0, aetarget
               = 0, awop = 0,gain =32.0):
@@ -51,6 +69,32 @@ class MvCamImage(object):
 	def set_name(self,image_name):
 		self._as_parameter_.image_name = image_name
 
+class MvStrobeDriver(object):
+	def __init__(self):
+		self.FRAME_DURATION = 0
+		self.TIMER_LOGIC = 1
+		self.SENSOR_STROBE = 2
+
+class MvStrobeOutput(object):
+	def __init__(self):
+		self.STROBE_OUT_OFF = 0
+		self.STROBE_OUT_LOW = 1
+		self.STROBE_OUT_HIGH = 2
+
+class MvAeMode(object):
+	def __init__(self):
+		self.AE_MODE_AE_AG = 0
+		self.AE_MODE_AG_AE = 1
+		self.AE_MODE_AE_ONLY = 2
+		self.AE_MODE_AG_ONLY = 3
+
+class MvAeOp(object):
+	def __init__(self):
+		self.AE_OP_OFF = 0
+		self.AE_OP_ONCE = 1
+		self.AE_OP_CONTINUOUS = 2
+
+
 class MachineVision:
 	def __init__(self,libPath,imageStorage):
 		self.libHandle = cdll.LoadLibrary(libPath)
@@ -65,15 +109,20 @@ class MachineVision:
 		return int(self.libHandle.mvCamOpenDef(byref(self.dvpHandle),byref(self.dvpStatus)))
 	
 	def set_exposure(self,exp):
+		#print(exp._as_parameter_)
 		return int(self.libHandle.mvCamSetExposure(byref(self.dvpHandle),exp,byref(self.dvpStatus)))
 		
-	
+	def set_strobe(self,strb):
+		print(strb._as_parameter_.mvstrb_duration)
+		return int(self.libHandle.mvCamSetStrobe(byref(self.dvpHandle),strb,byref(self.dvpStatus)))
+
 	def start_cam(self,loop,delay):
 		#fps = 1./(loop + delay)
 		#self.fps = fps
 		delay = c_double(delay)
 		#loop = c_double((1/fps)*1000000)
 		loop = c_float(loop)
+		print str(loop),str(delay)
 		return int(self.libHandle.mvCamStartTrigger(byref(self.dvpHandle),loop,delay,byref(self.dvpStatus)))
 	
 	
@@ -89,7 +138,9 @@ class MachineVision:
 	
 	def stop_cam(self):
 		return int(self.libHandle.mvCamStopTrigger(byref(self.dvpHandle),byref(self.dvpStatus)))
-	
+	def close_cam(self):
+		return int(self.libHandle.mvCamDestroy(byref(self.dvpHandle),byref(self.dvpStatus)))
+
 		
 		
 		

@@ -8,7 +8,7 @@ import datetime
 import multiprocessing
 import json
 from imageposter import ImagePoster
-
+from telemfetcher import TelemFetcher
 
 class Uploader():
 
@@ -25,17 +25,17 @@ class Uploader():
 
     #called by multiprocessing.Process.start
 
-	def run_uploader(self, trigger_event):
+	def run_uploader(self, trigger_event,serial_port,camera_trigger_params):
 		server_ip = self.server_info["server_ip"]
 		server_port = self.server_info["server_port"]
 		username = self.server_info["username"]
 		password = self.server_info["password"]
-		next_image_number = self.dir_info["next_image_number"]
-		image_poll_directory = self.dir_info["image_poll_directory"]
-		telemetry_poll_directory = self.dir_info["telemetry_poll_directory"]
+		#next_image_number = self.dir_info["next_image_number"]
+		#image_poll_directory = self.dir_info["image_poll_directory"]
+		#telemetry_poll_directory = self.dir_info["telemetry_poll_directory"]
 		poll_delay = self.sleep_info["poll_delay"]
 		heartbeat_delay = self.sleep_info["heartbeat_delay"]
-		
+		#image_prefix = self.dir_info["image_prefix"]
 		
 		#login to the ground station
 		server_url = "http://"+server_ip+":"+server_port
@@ -49,6 +49,8 @@ class Uploader():
 				print("Received incorrect padding, trying to log in again")
 			except DroneAPICallError as e:
 				print e
+			except KeyboardInterrupt:
+				return
 		print("Successfully logged in to " + server_url + " at " + str(datetime.datetime.now().time()))
 
 
@@ -58,6 +60,11 @@ class Uploader():
 		poster_process = multiprocessing.Process(target=poster.startPosting, args=[trigger_event])
 		poster_process.daemon = True
 		poster_process.start()
+		telem = TelemFetcher(self.dir_info)
+		telem.start_telemetry_receiver()
+		telem_process = multiprocessing.Process(target=telem.start_serial_listener,args=(trigger_event,serial_port))
+		telem_process.daemon = True
+		telem_process.start()
 		while(True):
 			time1 = datetime.datetime.now().time()
 			try:
@@ -66,11 +73,15 @@ class Uploader():
 				print e
 				time.sleep(heartbeat_delay)
 				continue
+			except KeyboardInterrupt:
+				return
 			time2 = datetime.datetime.now().time()
 			print("Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(heartbeat_response.status_code))
 			if currently_triggering == False:
 				if json.loads(heartbeat_response.text).get("heartbeat") == 1:	#check for the "start triggering" signal
-					print("Trigger signal Received!") 
+					print("Trigger signal Received!")
+					resp_json = json.loads(heartbeat_response.text)
+					camera_trigger_params.put((float(resp_json["loop"]),float(resp_json["delay"])))
 					trigger_event.set()
 					currently_triggering = True
 			if currently_triggering == True:

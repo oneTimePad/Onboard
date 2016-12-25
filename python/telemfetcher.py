@@ -15,8 +15,11 @@ def readline(ser):
 
 	string = ""
 	while True:
+		#print "ENTERING"
 		ch = ser.read()
+		#print("READ",ch)
 		if(ch == '\n' or ch == ''):
+			#print "BROKE"
 			break
 		string += ch
 	return string
@@ -31,8 +34,9 @@ class TelemFetcher(object):
 
 	"""
 
-	def __init__(self,storage_dir,storage_template):
-
+	def __init__(self,dir_info):
+		self.storage_dir = dir_info["telemetry_poll_directory"]
+		self.image_id = dir_info["next_image_number"]
 		"""
 		image_id := id to save telem files with
 		storage_dir:= full/path/to/image/directory/[capt]
@@ -41,13 +45,13 @@ class TelemFetcher(object):
 
 
 
-		self.storage_template = storage_template
+		self.storage_template = dir_info["file_prefix"]
 		"""
 		telem_fetcher makes a blank file before the heartbeats so we initialized image_id = -1 so
 		capt stays sychronize with photos
 		"""
-		self.image_id = -2
-		self.storage_dir = storage_dir
+		#self.image_id = -2
+		#self.storage_dir = storage_dir
 		self.telem_queue = None
 
 
@@ -59,16 +63,17 @@ class TelemFetcher(object):
 		telem_queue:= multiprocessing.Queue where telemetry is enqueued`
 
 		"""
-		while True:
-			self.image_id+=1
-			with open("".join((self.storage_dir,self.storage_template,str(self.image_id),".telem")),"w") as f:
-				telem = telem_queue.get(block=True)
-				telem_dict = dict()
-				for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
-					print name
-					telem_dict[name] = value
-				print(telem_dict)
-				f.write(json.dumps(telem_dict))
+		try:
+			while True:
+				self.image_id+=1
+				with open("".join((self.storage_dir,self.storage_template+str(self.image_id)+".telem")),"w") as f:
+					telem = telem_queue.get(block=True)
+					telem_dict = dict()
+					for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
+						telem_dict[name] = value
+					f.write(json.dumps(telem_dict))
+		except KeyboardInterrupt:
+			return
 
 	def start_telemetry_receiver(self):
 
@@ -97,22 +102,31 @@ class TelemFetcher(object):
 		baud := serial communication rate, default is 9600
 
 		"""
+		try:
+			if self.telem_queue  is None:
+				raise Exception("Please call start telemetry reciever first")
+			while True:
+				try:
+					serial_listener = serial.Serial(device_port,baud) #non-blocking read
+					break
+				except serial.SerialException:
+					continue
+				except KeyboardInterrupt:
+					return
 
-		if self.telem_queue  is None:
-			raise Exception("Please call start telemetry reciever first")
-		while True:
-			try:
-				serial_listener = serial.Serial(device_port,baud) #non-blocking read
-				break
-			except serial.SerialException:
-				continue
-
-		while True:
-			trigger_event.wait()
-			telemetry = readline(serial_listener)
-			if telemetry != "":
-				print(telemetry)
-				self.telem_queue.put(telemetry)
+			while True:
+				#pdb.set_trace()
+				#print "WAITING:::"
+				trigger_event.wait()
+				#print "LEAVING"
+				telemetry = readline(serial_listener)
+				#print "READ"
+				if telemetry != "":
+					#print("GOT:",telemetry)
+					self.telem_queue.put(telemetry)
+		except KeyboardInterrupt:
+			print "TITTIES"
+			return
 """
 if __name__ == "__main__":
 

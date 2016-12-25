@@ -30,6 +30,13 @@ extern "C" {
 
 	} mvExposure;
 
+	typedef struct _mvStrobe{
+		double mvstrb_duration;
+		dvpStrobeDriver mvstrb_driver;
+		dvpStrobeOutputType mvstrb_output;
+		double mvstrb_delay;
+	}mvStrobe;
+
 	typedef enum {
 		MV_OK,
 		MV_DVP_ERROR,
@@ -49,6 +56,7 @@ extern "C" {
 	mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, dvpStatus *ret_stat);
 	mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpStatus *ret_stat);
 	mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat);
+	mvStatus mvCamSetStrobe(dvpHandle *handle, mvStrobe strb,dvpStatus *ret_stat);
 }
 #endif
 
