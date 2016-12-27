@@ -24,7 +24,7 @@ def find_next_image_num():
 	image_num = 1
 	while os.path.isfile(image_path+file_prefix+str(image_num)+".jpeg"):
 		image_num+=1
-	print "starting at image:" + str(image_num)
+		print "DEBUG: starting at image:" + str(image_num)
 	return image_num
 dir_info["next_image_number"] = find_next_image_num()
 if __name__ == "__main__":
@@ -32,22 +32,16 @@ if __name__ == "__main__":
 	camera_trigger_params = multiprocessing.Queue()
 	uploader = Uploader(server_info, dir_info, delay_info)
 	#image_buffered =  multiprocessing.Event()
-	image_buffer = ImageBuffer(max_buffer_size=20)
+	image_buffer = ImageBuffer(max_buffer_size=20,mid_buffer_size=15)
 	uploader_proc = multiprocessing.Process(target=uploader.run_uploader, args=(trigger_event,com_port,camera_trigger_params,image_buffer))
 	uploader_proc.start()
-	#telem_fetcher = TelemFetcher(telem_path, file_prefix)
-	#telem_fetcher.start_telemetry_receiver()
-	#telem_fetcher_process = multiprocessing.Process(target=telem_fetcher.start_serial_listener, args=(trigger_event,com_port, 9600))
-	#telem_fetcher_process.daemon = True
-	#telem_fetcher_process.start()
+
 	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
-	#trigger_event.set()
-	#camera_trigger_params.put((1,1))
 	while True:
 		try:
 			trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
 			image_fetcher.start_capture(camera_trigger_params,image_buffer)
 		except KeyboardInterrupt:
-			print "CLOSING!"
+			print "DEBUG: CLOSING!"
 			image_fetcher.stop_capture()
 			sys.exit(0)

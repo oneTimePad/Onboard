@@ -29,39 +29,35 @@ class ImagePoller(object):
 		self.next_telemetry_filepath = self.telemetry_poll_directory + image_prefix + str(self.next_image_number) + ".telem"
 		self.image_prefix = image_prefix
 		self.image_buffer = image_buffer
-        
-        
+
 	# returns True if the next image is ready to be posted, returns False otherwise
 	def next_image_isready(self):
 		#print "POLLING FOR : " +self.next_image_filepath
 		#print os.path.isfile(self.next_image_filepath)
 		for rate,img in self.image_buffer:
 			if os.path.isfile(self.next_image_filepath)==False:
-				yield rate+.1,0
+				print "DEBUG: images not ready"
+				yield rate,0
 			statinfo = os.stat(self.next_image_filepath)
 			#print statinfo.st_size
 			if statinfo.st_size <500000:
-				print "SMALL IMAGE"
-				#yield rate+.1,0
-			# if the telemetry file exists but is empty, just skip over it
-			#if os.path.getsize(self.next_telemetry_filepath) == 0:
-			#	self.increment()
-			#	return False
-			print "current rate consumer: ", str(rate+.1)
-			yield (rate+.1),img
-    
+				print "DEBUG: SMALL IMAGE"
+
+			print "DEBUG: current rate consumer: ", str(rate)
+			yield rate,img
+
 	# exposes next_image_number
 	def get_next_image_number(self):
-		return self.next_image_number    
-	
+		return self.next_image_number
+
 	# exposes next_image_filepath
 	def get_next_image_filepath(self):
 		return self.next_image_filepath
-    
+
 	# exposes next_telemetry_filepath
 	def get_next_telemetry_filepath(self):
 		return self.next_telemetry_filepath
-    
+
 	# incrememnts next_image_number and recomputes next_image_filepath
 	def increment(self):
 		self.next_image_number += 1

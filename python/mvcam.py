@@ -104,46 +104,28 @@ class MachineVision:
 		self.imageStorage = imageStorage
 	def getStatus(self):
 		return int(self.dvpStatus)
-	
 	def open_cam(self):
 		return int(self.libHandle.mvCamOpenDef(byref(self.dvpHandle),byref(self.dvpStatus)))
-	
 	def set_exposure(self,exp):
-		#print(exp._as_parameter_)
 		return int(self.libHandle.mvCamSetExposure(byref(self.dvpHandle),exp,byref(self.dvpStatus)))
-		
 	def set_strobe(self,strb):
-		print(strb._as_parameter_.mvstrb_duration)
 		return int(self.libHandle.mvCamSetStrobe(byref(self.dvpHandle),strb,byref(self.dvpStatus)))
 
 	def start_cam(self,loop,delay):
-		#fps = 1./(loop + delay)
-		#self.fps = fps
 		delay = c_double(delay)
-		#loop = c_double((1/fps)*1000000)
 		loop = c_float(loop)
-		print str(loop),str(delay)
 		return int(self.libHandle.mvCamStartTrigger(byref(self.dvpHandle),loop,delay,byref(self.dvpStatus)))
-	
-	
 	def get_image(self,timeout):
 		image = mvCamImage()
 		ctimeout = c_uint(timeout)
 		retVal = int(self.libHandle.mvCamGetImage(byref(self.dvpHandle), byref(image),ctimeout,byref(self.dvpStatus)))
 		return MvCamImage(image),retVal
-	
 	def save_image(self,image,quality):
 		cquality = c_int(quality)
 		return int(self.libHandle.mvCamSaveImage(byref(self.dvpHandle),byref(image._as_parameter_),cquality,byref(self.dvpStatus)))
-	
 	def stop_cam(self):
 		return int(self.libHandle.mvCamStopTrigger(byref(self.dvpHandle),byref(self.dvpStatus)))
 	def close_cam(self):
 		return int(self.libHandle.mvCamDestroy(byref(self.dvpHandle),byref(self.dvpStatus)))
 
-		
-		
-		
-		
-		
 
