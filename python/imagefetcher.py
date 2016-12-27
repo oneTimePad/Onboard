@@ -50,7 +50,7 @@ class ImageFetcher(object):
 		self.mvCam.stop_cam()
 		self.mvCam.close_cam()
 		print "closed camera"
-	def start_capture(self,queue):
+	def start_capture(self,queue,image_buffered):
 		"""
 		starts up the machine vision camera capturing, fetches frames from
 		camera and saves them
@@ -73,6 +73,7 @@ class ImageFetcher(object):
 			image.set_name(name)
 
 			err = self.mvCam.save_image(image,self.jpeg_quality)
+			image_buffered.insert(self.image_id)
 			#if err !=1:
 			#	print "SAVE _IMAGE RETURNED", err, "for",name
 			self.image_id+=1

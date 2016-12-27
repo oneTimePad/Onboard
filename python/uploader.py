@@ -25,7 +25,7 @@ class Uploader():
 
     #called by multiprocessing.Process.start
 
-	def run_uploader(self, trigger_event,serial_port,camera_trigger_params):
+	def run_uploader(self, trigger_event,serial_port,camera_trigger_params,image_buffer):
 		server_ip = self.server_info["server_ip"]
 		server_port = self.server_info["server_port"]
 		username = self.server_info["username"]
@@ -56,7 +56,7 @@ class Uploader():
 
 		#post heartbeats and respond accordingly to the "trigger signal" or "stop triggering" signal
 		currently_triggering = False
-		poster = ImagePoster(self.dir_info, drone_api, poll_delay)
+		poster = ImagePoster(self.dir_info, drone_api, poll_delay,image_buffer)
 		poster_process = multiprocessing.Process(target=poster.startPosting, args=[trigger_event])
 		poster_process.daemon = True
 		poster_process.start()
