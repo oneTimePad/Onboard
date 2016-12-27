@@ -21,39 +21,43 @@ class ImagePoller(object):
 	'''
 	
 	# Constructor, takes next_image_number (default=1) and image_poll_directory as input
-	def __init__(self, next_image_number, image_poll_directory, telemetry_poll_directory,image_prefix):
+	def __init__(self, next_image_number, image_poll_directory, telemetry_poll_directory,image_prefix,image_buffer):
 		self.next_image_number = next_image_number
 		self.image_poll_directory = image_poll_directory
 		self.telemetry_poll_directory = telemetry_poll_directory
 		self.next_image_filepath = self.image_poll_directory +image_prefix + str(self.next_image_number) + ".jpeg"
 		self.next_telemetry_filepath = self.telemetry_poll_directory + image_prefix + str(self.next_image_number) + ".telem"
 		self.image_prefix = image_prefix
-        
-        
+		self.image_buffer = image_buffer
+
 	# returns True if the next image is ready to be posted, returns False otherwise
 	def next_image_isready(self):
 		#print "POLLING FOR : " +self.next_image_filepath
 		#print os.path.isfile(self.next_image_filepath)
-		if os.path.isfile(self.next_image_filepath)==False:
-			return False
-		# if the telemetry file exists but is empty, just skip over it
-		#if os.path.getsize(self.next_telemetry_filepath) == 0:
-		#	self.increment()
-		#	return False
-		return True
-    
+		for rate,img in self.image_buffer:
+			if os.path.isfile(self.next_image_filepath)==False:
+				print "DEBUG: images not ready"
+				yield rate,0
+			statinfo = os.stat(self.next_image_filepath)
+			#print statinfo.st_size
+			if statinfo.st_size <500000:
+				print "DEBUG: SMALL IMAGE"
+
+			print "DEBUG: current rate consumer: ", str(rate)
+			yield rate,img
+
 	# exposes next_image_number
 	def get_next_image_number(self):
-		return self.next_image_number    
-	
+		return self.next_image_number
+
 	# exposes next_image_filepath
 	def get_next_image_filepath(self):
 		return self.next_image_filepath
-    
+
 	# exposes next_telemetry_filepath
 	def get_next_telemetry_filepath(self):
 		return self.next_telemetry_filepath
-    
+
 	# incrememnts next_image_number and recomputes next_image_filepath
 	def increment(self):
 		self.next_image_number += 1

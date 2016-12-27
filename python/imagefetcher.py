@@ -42,15 +42,15 @@ class ImageFetcher(object):
 		self.storage_prefix = dir_info["file_prefix"]
 		self.mvCam.open_cam()
 		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
-		val = self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"],image_parameters["strobe_delay"]))
-		print("RETURNED:", val)
+		self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"],image_parameters["strobe_delay"]))
+
 		self.trigger_event = trigger_event
 		
 	def stop_capture(self):
 		self.mvCam.stop_cam()
 		self.mvCam.close_cam()
-		print "closed camera"
-	def start_capture(self,queue):
+		print "DEBUG: closed camera"
+	def start_capture(self,queue,image_buffered):
 		"""
 		starts up the machine vision camera capturing, fetches frames from
 		camera and saves them
@@ -60,21 +60,20 @@ class ImageFetcher(object):
 
 		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
 			raise Exception(self.mvCam.dvpStatus)
-		#print "started cam loop"
+
 		while self.trigger_event.is_set(): #while event is set
 			image,err = self.mvCam.get_image(self.frame_timeout) # get fram
 
 			if err != 0:
 				raise Exception(self.mvCam.dvpStatus)
 
-			#self.image_id +=1
 			name = "".join((self.storage_dir,self.storage_prefix,str(self.image_id),".jpeg"))
-			#print name
+
 			image.set_name(name)
 
 			err = self.mvCam.save_image(image,self.jpeg_quality)
-			#if err !=1:
-			#	print "SAVE _IMAGE RETURNED", err, "for",name
+			image_buffered.insert(self.image_id)
+
 			self.image_id+=1
 		self.mvCam.stop_cam()
-		print "stopped camera"
+		print "DEBUG: stopped camera"

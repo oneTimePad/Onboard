@@ -25,18 +25,16 @@ class Uploader():
 
     #called by multiprocessing.Process.start
 
-	def run_uploader(self, trigger_event,serial_port,camera_trigger_params):
+	def run_uploader(self, trigger_event,serial_port,camera_trigger_params,image_buffer):
 		server_ip = self.server_info["server_ip"]
 		server_port = self.server_info["server_port"]
 		username = self.server_info["username"]
 		password = self.server_info["password"]
-		#next_image_number = self.dir_info["next_image_number"]
-		#image_poll_directory = self.dir_info["image_poll_directory"]
-		#telemetry_poll_directory = self.dir_info["telemetry_poll_directory"]
+
 		poll_delay = self.sleep_info["poll_delay"]
 		heartbeat_delay = self.sleep_info["heartbeat_delay"]
-		#image_prefix = self.dir_info["image_prefix"]
-		
+
+
 		#login to the ground station
 		server_url = "http://"+server_ip+":"+server_port
 		drone_api = DroneAPI(server_url, username, password)
@@ -46,17 +44,17 @@ class Uploader():
 				drone_api.postAccess()
 				logged_in = True
 			except TypeError:
-				print("Received incorrect padding, trying to log in again")
+				print("DEBUG: Received incorrect padding, trying to log in again")
 			except DroneAPICallError as e:
 				print e
 			except KeyboardInterrupt:
 				return
-		print("Successfully logged in to " + server_url + " at " + str(datetime.datetime.now().time()))
+		print("DEBUG: Successfully logged in to " + server_url + " at " + str(datetime.datetime.now().time()))
 
 
 		#post heartbeats and respond accordingly to the "trigger signal" or "stop triggering" signal
 		currently_triggering = False
-		poster = ImagePoster(self.dir_info, drone_api, poll_delay)
+		poster = ImagePoster(self.dir_info, drone_api, poll_delay,image_buffer)
 		poster_process = multiprocessing.Process(target=poster.startPosting, args=[trigger_event])
 		poster_process.daemon = True
 		poster_process.start()
@@ -68,7 +66,7 @@ class Uploader():
 		while(True):
 			time1 = datetime.datetime.now().time()
 			try:
-				heartbeat_response = drone_api.postHeartbeat()  					#post the heartbeat
+				heartbeat_response = drone_api.postHeartbeat()			#post the heartbeat
 			except DroneAPICallError as e:
 				print e
 				time.sleep(heartbeat_delay)
@@ -76,20 +74,20 @@ class Uploader():
 			except KeyboardInterrupt:
 				return
 			time2 = datetime.datetime.now().time()
-			print("Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(heartbeat_response.status_code))
+			print("DEBUG: Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(heartbeat_response.status_code))
 			if currently_triggering == False:
 				if json.loads(heartbeat_response.text).get("heartbeat") == 1:	#check for the "start triggering" signal
-					print("Trigger signal Received!")
+
 					resp_json = json.loads(heartbeat_response.text)
-					camera_trigger_params.put((float(resp_json["loop"]),float(resp_json["delay"])))
-					trigger_event.set()
-					currently_triggering = True
+					if resp_json["loop"] is not None and resp_json["delay"] is not  None:
+						camera_trigger_params.put((float(resp_json["loop"]),float(resp_json["delay"])))
+						trigger_event.set()
+						currently_triggering = True
+						print("DEBUG: Trigger signal Received!")
 			if currently_triggering == True:
 				if json.loads(heartbeat_response.text).get("heartbeat") == 0:	#check for the "stop triggering" signal
-					print("Stop triggering signal Received!")
+					print("DEBUG: Stop triggering signal Received!")
 					trigger_event.clear()
 					currently_triggering = False
 			time.sleep(heartbeat_delay) #5 is arbitrary
-			
-		
-			
+
