@@ -30,12 +30,13 @@ dir_info["next_image_number"] = find_next_image_num()
 if __name__ == "__main__":
 	trigger_event = multiprocessing.Event()
 	camera_trigger_params = multiprocessing.Queue()
-	uploader = Uploader(server_info, dir_info, delay_info)
+	#uploader = Uploader(server_info, dir_info, delay_info)
 	#image_buffered =  multiprocessing.Event()
 	image_buffer = ImageBuffer(max_buffer_size=20,mid_buffer_size=15)
-	uploader_proc = multiprocessing.Process(target=uploader.run_uploader, args=(trigger_event,com_port,camera_trigger_params,image_buffer))
-	uploader_proc.start()
-
+	#uploader_proc = multiprocessing.Process(target=uploader.run_uploader, args=(trigger_event,com_port,camera_trigger_params,image_buffer))
+	#uploader_proc.start()
+        camera_trigger_params.put((.3,.5))
+        trigger_event.set()
 	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
 	while True:
 		try:
