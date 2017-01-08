@@ -70,6 +70,14 @@ class TelemFetcher(object):
 					telem = telem_queue.get(block=True)
 					telem_dict = dict()
 					for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
+						if '\r' in value:
+							value = value.split('\r')[0]
+						if name in ['lat','lon']:
+							value = float(value)
+							value = "%.6f" %(value/(1e7))
+						if name in ['alt']:
+							value = float(value)
+							value = "%.3f" %(value/(1e3))
 						telem_dict[name] = value
 					f.write(json.dumps(telem_dict))
 		except KeyboardInterrupt:
@@ -110,6 +118,7 @@ class TelemFetcher(object):
 					serial_listener = serial.Serial(device_port,baud) #non-blocking read
 					break
 				except serial.SerialException:
+					print "cannot connect"
 					continue
 				except KeyboardInterrupt:
 					return
