@@ -95,13 +95,10 @@ mvStatus mvCamOpenDef(dvpHandle *handle, dvpStatus *ret_stat) {
 
 mvStatus mvCamSetStrobe(dvpHandle *handle,mvStrobe strobe,dvpStatus *ret_stat){
 	dvpUint32 color; 
-	//dvpGetColorSolutionSel(*handle,&color);	
 	dvpSetColorSolutionSel(*handle,3);
 	dvpGetColorSolutionSel(*handle,&color);
 	dvpSelectionDescr desc;
 	dvpGetColorSolutionSelDescr(*handle,&desc);
-	printf("%d\n",desc.uCount);
-	printf("COLOR %d\n",color);
 	dvpStatus status;
 	dvpStrobeDriver strobe_driver = strobe.mvstrb_driver;
 	dvpStrobeOutputType strobe_output = strobe.mvstrb_output;
@@ -310,14 +307,7 @@ mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, 
 	if (isValidHandle(handle, ret_stat) != MV_OK) {
 		return MV_DVP_ERROR;
 	}
-	float gain = 0;
-	if (dvpGetAnalogGain(*handle, &gain) != DVP_STATUS_OK) {
 
-		printf("ERROR\n");
-	}
-	else {
-		//printf("GAIN: %f\n", gain);
-	}
 
 	status = dvpGetFrame(*handle, &image->frame, &image->image_buffer, timeout);
 
@@ -335,12 +325,12 @@ mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpSt
 	}
 
 	if (isValidHandle(handle, ret_stat) != MV_OK) {
-		fprintf(stderr, "\x1b[1;31mERROR: invalid handle\x1b[0m\n");
+		//fprintf(stderr, "\x1b[1;31mERROR: invalid handle\x1b[0m\n");
 		return MV_DVP_ERROR;
 	}
 	dvpStatus status = dvpSavePicture(&image->frame, image->image_buffer, image->image_name, quality);
 	if (status != DVP_STATUS_OK) {
-		fprintf(stderr, "\x1b[1;31mERROR: something other than an invalid handle\x1b[0m\n");
+		//fprintf(stderr, "\x1b[1;31mERROR: something other than an invalid handle\x1b[0m\n");
 		*ret_stat = status;
 		return MV_DVP_ERROR;
 	}

@@ -6,13 +6,13 @@ from imagebuffer import ImageBuffer
 import time
 import sys
 import os
-server_ip = "192.168.1.171"
+server_ip = "192.168.123.207"
 server_port = "8000"
 username = "drone"
 password = "ruautonomous"
 telem_path = "/home/ruautonomous/telemfiles/"
 image_path = "/home/ruautonomous/pictures/"
-com_port = "/dev/ttyACM1"
+com_port = "/dev/ttyACM0"
 file_prefix = "capt"
 
 server_info = {"server_ip": server_ip, "server_port": server_port, "username": username, "password": password}

@@ -25,7 +25,7 @@ class ImageBuffer(object):
 		self.insert_since_last_cal = 0
 		self.num_inserts_till_cal = num_inserts_till_cal
 
-                self.queue_size = multiprocessing.Value('i',0)
+		self.queue_size = multiprocessing.Value('i',0)
 
 		self.consumption_rate = 0
 	def __iter__(self):
