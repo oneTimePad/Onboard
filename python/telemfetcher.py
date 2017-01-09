@@ -1,7 +1,8 @@
-import pdb
 import serial
 import multiprocessing
 import json
+import time
+import math
 
 def readline(ser):
 
@@ -28,7 +29,7 @@ def readline(ser):
 class TelemFetcher(object):
 
 	"""
-		Connects to Mavlink (MavProxy) server to fetch telemetry informaiton
+		Listens on arduino serial port to fetch telemetry informaiton
 		associated with images. Waits for msg on serial from arduino to fetch
 		serial.
 
@@ -50,15 +51,15 @@ class TelemFetcher(object):
 		telem_fetcher makes a blank file before the heartbeats so we initialized image_id = -1 so
 		capt stays sychronize with photos
 		"""
-		#self.image_id = -2
-		#self.storage_dir = storage_dir
+
 		self.telem_queue = None
 
 
 	def telemetry_receiver(self,telem_queue):
 
 		"""
-		polls for next telemetry from telem_queue and writes it to a file
+		polls for next telemetry from telem_queue and writes it to a file in
+		json format 
 
 		telem_queue:= multiprocessing.Queue where telemetry is enqueued`
 
@@ -69,15 +70,23 @@ class TelemFetcher(object):
 				with open("".join((self.storage_dir,self.storage_template+str(self.image_id)+".telem")),"w") as f:
 					telem = telem_queue.get(block=True)
 					telem_dict = dict()
+
+					#the value need to be in proper json format before saving 
 					for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
+						#arduino appends a random carriage return (sometimes)
 						if '\r' in value:
 							value = value.split('\r')[0]
+						#lat/lon are sent in as whole numbers (like micro-deg)
 						if name in ['lat','lon']:
 							value = float(value)
 							value = "%.6f" %(value/(1e7))
-						if name in ['alt']:
+						#altitude is sent in as millimeters
+						elif name in ['alt']:
 							value = float(value)
 							value = "%.3f" %(value/(1e3))
+						#roll, pitch, and yaw sent in in radians
+						elif name in ['roll','pitch','yaw']:
+							value = "%.3f" %(float(value) * 180/math.pi )
 						telem_dict[name] = value
 					f.write(json.dumps(telem_dict))
 		except KeyboardInterrupt:
@@ -93,10 +102,10 @@ class TelemFetcher(object):
 
 		self.telem_queue = multiprocessing.Queue()
 		receiver = multiprocessing.Process(target =
-						   self.telemetry_receiver,args=(self.telem_queue,))
+		self.telemetry_receiver,args=(self.telem_queue,))
 		receiver.daemon  = True # don't wait for it to die
 		receiver.start()
-		
+
 
 	def start_serial_listener(self,trigger_event,device_port,baud=9600):
 
@@ -104,7 +113,7 @@ class TelemFetcher(object):
 		open serial device connection and waits for arduino to output telemetry.
 		puts telemetry in queue to be written to file
 
-		device_port := com [windows] or device file [linux] where arduino
+		device_port := virtual char(tty) device file [linux] where arduino
 		serial is located
  
 		baud := serial communication rate, default is 9600
@@ -119,30 +128,20 @@ class TelemFetcher(object):
 					break
 				except serial.SerialException:
 					print "cannot connect"
+					time.sleep(1)
 					continue
+				#stop the crashing caused by SIGINT
 				except KeyboardInterrupt:
 					return
 
 			while True:
-
 				trigger_event.wait()
 
 				telemetry = readline(serial_listener)
 
 				if telemetry != "":
-
 					self.telem_queue.put(telemetry)
+
 		except KeyboardInterrupt:
-
 			return
-"""
-if __name__ == "__main__":
 
-
-	telem_fetcher = TelemFetcher("C:\\Users\\ruautonomous\\Desktop\\Onboard\\telemfile\\", "capt")
-	print "reaches here 1"
-	telem_fetcher.start_telemetry_receiver()
-	print "reaches here 2"
-	telem_fetcher.start_serial_listener("COM10", 9600)
-	print "reaches here 3"
-"""
