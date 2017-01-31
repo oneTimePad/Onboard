@@ -6,8 +6,15 @@ from imagebuffer import ImageBuffer
 import time
 import sys
 import os
-server_ip = "192.168.123.207"
-server_port = "8000"
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("server")
+parser.add_argument("port")
+args = parser.parse_args()
+
+server_ip = str(args.server)
+server_port = str(args.port)
 username = "drone"
 password = "ruautonomous"
 telem_path = "/home/ruautonomous/telemfiles/"
