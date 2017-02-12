@@ -11,14 +11,16 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("server")
 parser.add_argument("port")
+parser.add_argument("pictures")
+parser.add_argument("telems")
 args = parser.parse_args()
 
 server_ip = str(args.server)
 server_port = str(args.port)
 username = "drone"
 password = "ruautonomous"
-telem_path = "/home/ruautonomous/telemfiles/"
-image_path = "/home/ruautonomous/pictures/"
+telem_path = str(args.pictures) 
+image_path = str(args.telems)
 com_port = "/dev/ttyACM0"
 file_prefix = "capt"
 
