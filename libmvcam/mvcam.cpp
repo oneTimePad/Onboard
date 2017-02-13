@@ -325,7 +325,11 @@ mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, 
 		*ret_stat = status;
 		return MV_DVP_ERROR;
 	}
-
+	dvpFrameCount frameC;
+	if (dvpGetFrameCount(*handle,&frameC) != DVP_STATUS_OK)
+		printf("ERROR COUNT\n");
+	else
+		printf("FRAME DROP : %lu\n",frameC.uFrameDrop);
 	return MV_OK;
 }
 

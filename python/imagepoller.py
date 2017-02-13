@@ -40,8 +40,8 @@ class ImagePoller(object):
 				yield rate,0
 			statinfo = os.stat(self.next_image_filepath)
 			#print statinfo.st_size
-			if statinfo.st_size <500000:
-				print "DEBUG: SMALL IMAGE"
+			#if statinfo.st_size <500000:
+			#	print "DEBUG: SMALL IMAGE"
 
 			print "DEBUG: current rate consumer: ", str(rate)
 			yield rate,img

@@ -19,8 +19,8 @@ server_ip = str(args.server)
 server_port = str(args.port)
 username = "drone"
 password = "ruautonomous"
-telem_path = str(args.pictures) 
-image_path = str(args.telems)
+image_path = str(args.pictures) 
+telem_path = str(args.telems)
 com_port = "/dev/ttyACM0"
 file_prefix = "capt"
 
@@ -42,10 +42,11 @@ if __name__ == "__main__":
 	uploader = Uploader(server_info, dir_info, delay_info)
 	#image_buffered =  multiprocessing.Event()
 	image_buffer = ImageBuffer(max_buffer_size=20,mid_buffer_size=15)
+	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
+
 	uploader_proc = multiprocessing.Process(target=uploader.run_uploader, args=(trigger_event,com_port,camera_trigger_params,image_buffer))
 	uploader_proc.start()
 
-	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
 	while True:
 		try:
 			trigger_event.wait() # image_fetcher.start_capture continues as long as the event is set
@@ -53,4 +54,5 @@ if __name__ == "__main__":
 		except KeyboardInterrupt:
 			print "DEBUG: CLOSING!"
 			image_fetcher.stop_capture()
+
 			sys.exit(0)

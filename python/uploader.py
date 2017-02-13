@@ -75,19 +75,23 @@ class Uploader():
 				return
 			time2 = datetime.datetime.now().time()
 			print("DEBUG: Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(heartbeat_response.status_code))
+			resp_json = json.loads(heartbeat_response.text)
+			print "REPONSE JSON:" + str(resp_json)
 			if currently_triggering == False:
-				if json.loads(heartbeat_response.text).get("heartbeat") == 1:	#check for the "start triggering" signal
-
-					resp_json = json.loads(heartbeat_response.text)
+				if resp_json["heartbeat"] == 1:	#check for the "start triggering" signal
 					if resp_json["loop"] is not None and resp_json["delay"] is not  None:
 						camera_trigger_params.put((float(resp_json["loop"]),float(resp_json["delay"])))
 						trigger_event.set()
 						currently_triggering = True
 						print("DEBUG: Trigger signal Received!")
 			if currently_triggering == True:
-				if json.loads(heartbeat_response.text).get("heartbeat") == 0:	#check for the "stop triggering" signal
+				if resp_json["heartbeat"] == 0:	#check for the "stop triggering" signal
 					print("DEBUG: Stop triggering signal Received!")
 					trigger_event.clear()
 					currently_triggering = False
+				elif "gain" in resp_json and float(resp_json["gain"]) > 0:
+
+					print "GOT GAIN " + str(resp_json["gain"])
+					camera_trigger_params.put(("gain",float(resp_json["gain"])))
 			time.sleep(heartbeat_delay) #5 is arbitrary
 
