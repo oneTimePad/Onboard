@@ -127,7 +127,7 @@ class TelemFetcher(object):
 					serial_listener = serial.Serial(device_port,baud) #non-blocking read
 					break
 				except serial.SerialException:
-					print "cannot connect"
+					#print "cannot connect"
 					time.sleep(1)
 					continue
 				#stop the crashing caused by SIGINT

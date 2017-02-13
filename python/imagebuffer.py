@@ -36,7 +36,7 @@ class ImageBuffer(object):
 		"""
 
 		with self.lock: #used to remove possible race condition
-			print "DEBUG: INSERTING IMAGE INTO QUEUE"
+			#print "DEBUG: INSERTING IMAGE INTO QUEUE"
 			if self.insert_since_last_cal == 0:
 				self.last_insert_time = time.time()
 			self.insert_since_last_cal+=1
@@ -56,13 +56,13 @@ class ImageBuffer(object):
 			there is a very low chance that this will ever return no image due to the flow control mechanism,
 			however, it is there in case the flow control fails. As to notify the consumer to stop
 		"""
-		print "DEBUG: LOOKING FOR NEXT IMAGE"
+		#print "DEBUG: LOOKING FOR NEXT IMAGE"
 		with self.lock: #adds consistent view of the queue size
 			print "DEBUG: IMAGE QUEUE SIZE:", str(self.image_queue.qsize())
 			if self.image_queue.qsize() < self.min_buffer_size: #if image queue falls below a certain len (block)
 				self.not_buffering.clear()
 
-		print "DEBUG: WAITING FOR BUFFERING"
+		#print "DEBUG: WAITING FOR BUFFERING"
 		self.not_buffering.wait() #buffering
 		with self.lock: #consumption rate calculation is not atomic and must cause the producer to wait
 			rate = self.calculate_consumption_rate(self.insert_rate.value)

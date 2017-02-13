@@ -45,10 +45,12 @@ class ImageFetcher(object):
 		self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"],image_parameters["strobe_delay"]))
 
 		self.trigger_event = trigger_event
-		
+
+
 	def stop_capture(self):
 		self.mvCam.stop_cam()
 		self.mvCam.close_cam()
+
 		print "DEBUG: closed camera"
 	def start_capture(self,queue,image_buffered):
 		"""
@@ -57,12 +59,12 @@ class ImageFetcher(object):
 
 		"""
 		loop,delay = queue.get(block=True)
-
 		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
 			raise Exception(self.mvCam.dvpStatus)
 
 		while self.trigger_event.is_set(): #while event is set
-			image,err = self.mvCam.get_image(self.frame_timeout) # get fram
+
+			image,err = self.mvCam.get_image(self.frame_timeout) # get frame
 
 			if err != 0:
 				raise Exception(self.mvCam.dvpStatus)
@@ -75,5 +77,10 @@ class ImageFetcher(object):
 			image_buffered.insert(self.image_id)
 
 			self.image_id+=1
+			if not queue.empty():
+				key,value= queue.get(block=False)
+				if key == "gain":
+					print "Setting gain to : " + str(value)
+					self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=value,aemode=self.aemode,aeop=self.aeop))
 		self.mvCam.stop_cam()
 		print "DEBUG: stopped camera"

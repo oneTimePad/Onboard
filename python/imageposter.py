@@ -24,6 +24,7 @@ class ImagePoster(object):
 		self.poll_delay = poll_delay
 		self.image_prefix = self.dir_info["file_prefix"]
 		self.image_poller = ImagePoller(self.next_image_number, self.image_poll_directory, self.telemetry_poll_directory,self.image_prefix,image_buffer)
+		
 
 	def startPosting(self, trigger_event):
         #starts the process of polling and posting images and telemtry to server
@@ -36,7 +37,7 @@ class ImagePoster(object):
         # continuously poll and post if images and telemetry are found
 
 		while (True):
-			trigger_event.wait()
+			#trigger_event.wait()
 			time1 = datetime.datetime.now().time()
 			next_image_number = image_poller.get_next_image_number()
 			img_filepath = image_poller.get_next_image_filepath()
@@ -47,14 +48,16 @@ class ImagePoster(object):
 
 				posted = False
 				while (posted == False):
+
+
 					try:
-						print "posting" + img_filepath
+						#print "posting" + img_filepath
 						imgpost_response = drone_api.postImage(img_filepath, telem_filepath)
 						posted = True
 					except DroneAPICallError as e:
 						print e
 				time2 = datetime.datetime.now().time()
-				print("DEBUG: Posted image at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(imgpost_response.status_code))
+				#print("DEBUG: Posted image at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(imgpost_response.status_code))
 				image_poller.increment()
 				time.sleep(rate)
 			#unlikely
