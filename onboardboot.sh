@@ -1,6 +1,10 @@
 #!/usr/bin/bash
+HOMEDIR=$1
 
-path="/home/ruautonomous/"
+
+path="/home/"$HOMEDIR
+vedir=$2
+
 
 if [ ! -d $path"/pics" ]; then
 	mkdir $path"/pics"
@@ -9,8 +13,8 @@ fi;
 if [ ! -d $path"/telems" ]; then
 	mkdir $path"/telems"
 fi;
-pictures=$path"pics/pictures_"
-telemfiles=$path"telems/telemfiles_"
+pictures=$path"/pics/pictures_"
+telemfiles=$path"/telems/telemfiles_"
 rand=$RANDOM
 tmppics=""
 tmptelems=""
@@ -26,6 +30,6 @@ telemfiles=$tmptelems
 
 mkdir $pictures 
 mkdir $telemfiles
-. /home/ruautonomous/.virtualenvs/onboard/bin/activate
+. $vedir"/onboard/bin/activate"
 
-python /home/ruautonomous/Onboard/python/main.py 192.168.123.200 8443 $pictures $telemfiles
+python $path"/Onboard/python/main.py" $3 $4 $pictures $telemfiles
