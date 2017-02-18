@@ -2,7 +2,7 @@ from mvcam import MachineVision,MvExposure,MvStrobe,MvCamImage
 import multiprocessing
 import os,sys
 
-LIBRARY_LOCATION ="/home/ruautonomous/Onboard/libmvcam/libmvcam.so"
+LIBRARY_LOCATION=os.path.dirname(os.path.abspath(__file__))+"/../libmvcam/libmvcam.so"
 
 """
 start the machine vision camera and fetches images
