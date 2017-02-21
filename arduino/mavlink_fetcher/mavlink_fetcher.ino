@@ -1,68 +1,40 @@
 #include <Mavlink.h>
 
-const unsigned TRIGGER_PIN = 2;
-volatile bool trigger_state = 0;
+const unsigned TRIGGER_PIN = 2; //input pin
+volatile bool trigger_state = 0; 
 Mavlink mav(Serial1);
-volatile  int lol = 0;
+
 
 void fct() {
-  trigger_state = 1;
- // Serial.println("LOL"); 
+  trigger_state = 1; //triggered
+
 }
 
 void setup() { 
-	Serial.begin(9600);
-	//while(!Serial); // for arduino micro
+  Serial.begin(9600);
   Serial1.begin(57600);
-    attachInterrupt(digitalPinToInterrupt(TRIGGER_PIN),fct,FALLING);
-      pinMode(TRIGGER_PIN,INPUT);
+  attachInterrupt(digitalPinToInterrupt(TRIGGER_PIN),fct,FALLING);
+  pinMode(TRIGGER_PIN,INPUT);
 
 }
 
 void loop() {
-/*
- mav.read();
-       Mavlink::attributes attribs = mav.getAttribs();
-  Serial.print("   Lat: "); Serial.print(attribs.lat);
-  Serial.print("   Lon: "); Serial.print(attribs.lon);
-  Serial.print("   Rel Alt: "); Serial.print(attribs.rel_alt);
-  Serial.print("   Roll: "); Serial.print(attribs.roll);
-  Serial.print("   Pitch: "); Serial.print(attribs.pitch);
-  Serial.print("   Yaw: "); Serial.println(attribs.yaw);
-*/
-
-     mav.read();
-//  bool current_state = digitalRead(TRIGGER_PIN);
-//  //Serial.println(current_state);
-//  if(current_state != trigger_state) {
-//    if ((trigger_state = current_state)==LOW) {
-//      Serial.println(lol++);
-//    
-////       Mavlink::attributes attribs = mav.getAttribs();
-////  Serial.print("   Lat: "); Serial.print(attribs.lat);
-////  Serial.print("   Lon: "); Serial.print(attribs.lon);
-////  Serial.print("   Rel Alt: "); Serial.print(attribs.rel_alt);
-////  Serial.print("   Roll: "); Serial.print(attribs.roll);
-////  Serial.print("   Pitch: "); Serial.print(attribs.pitch);
-////  Serial.print("   Yaw: "); Serial.println(attribs.yaw);
-//    }
-//    }
-    //Serial.println(digitalRead(TRIGGER_PIN));
-      if (trigger_state) {
-        trigger_state = 0;
-        //Serial.print(++lol);
-        Mavlink::attributes attribs = mav.getAttribs();
-         Serial.print(attribs.lat);
-         Serial.print(',');
-        Serial.print(attribs.lon);
-        Serial.print(',');
-        Serial.print(attribs.rel_alt);
-        Serial.print(',');
-        Serial.print(attribs.roll);
-        Serial.print(',');
-        Serial.print(attribs.pitch);
-        Serial.print(',');
-        Serial.println(attribs.yaw);
-      }
-  
+     	mav.read();
+	//when triggered output to serial
+	if (trigger_state) {
+		Mavlink::attributes attribs = mav.getAttribs();
+		Serial.print(attribs.lat);
+		Serial.print(',');
+		Serial.print(attribs.lon);
+		Serial.print(',');
+		Serial.print(attribs.rel_alt);
+		Serial.print(',');
+		Serial.print(attribs.alt);
+		Serial.print(',');
+		Serial.print(attribs.roll);
+		Serial.print(',');
+		Serial.print(attribs.pitch);
+		Serial.print(',');
+		Serial.println(attribs.yaw);
+	}
 }

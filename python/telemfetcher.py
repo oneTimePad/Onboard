@@ -72,7 +72,7 @@ class TelemFetcher(object):
 					telem_dict = dict()
 
 					#the value need to be in proper json format before saving 
-					for name,value in zip(['lat','lon','alt','roll','pitch','yaw'],telem.split(',')):
+					for name,value in zip(['lat','lon','rel_alt','alt','roll','pitch','yaw'],telem.split(',')):
 						#arduino appends a random carriage return (sometimes)
 						if '\r' in value:
 							value = value.split('\r')[0]
@@ -81,7 +81,7 @@ class TelemFetcher(object):
 							value = float(value)
 							value = "%.6f" %(value/(1e7))
 						#altitude is sent in as millimeters
-						elif name in ['alt']:
+						elif name in ['alt','rel_alt']:
 							value = float(value)
 							value = "%.3f" %(value/(1e3))
 						#roll, pitch, and yaw sent in in radians
