@@ -31,5 +31,6 @@ telemfiles=$tmptelems
 mkdir $pictures 
 mkdir $telemfiles
 . $vedir"/onboard/bin/activate"
-
-python $path"/Onboard/python/main.py" $3 $4 $pictures $telemfiles
+echo $pictures
+echo $telemfiles
+python $path"/Onboard/python/main.py" $3 $4 $pictures"/" $telemfiles"/"
