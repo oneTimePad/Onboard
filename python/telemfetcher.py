@@ -138,9 +138,9 @@ class TelemFetcher(object):
 				trigger_event.wait()
 
 				telemetry = readline(serial_listener)
-				print telemetry
+
 				if telemetry != "":
-					print telemetry
+
 					self.telem_queue.put(telemetry)
 
 		except KeyboardInterrupt:

@@ -7,7 +7,8 @@ LIBRARY_LOCATION=os.path.dirname(os.path.abspath(__file__))+"/../libmvcam/libmvc
 """
 start the machine vision camera and fetches images
 """
-
+#This delay works fine. No need to change it to change fps, just change loop.
+DEFAULT_DELAY = 10000
 
 class ImageFetcher(object):
 
@@ -29,7 +30,6 @@ class ImageFetcher(object):
 
 		"""
 		self.shutter_speed = image_parameters["shutter_speed"]
-		self.analog_gain = image_parameters["gain"]
 		self.frame_timeout = image_parameters["frame_timeout"]
 		self.jpeg_quality = image_parameters["jpeg_quality"]
 		self.aemode = image_parameters["aemode"]
@@ -41,7 +41,6 @@ class ImageFetcher(object):
 		self.storage_dir = dir_info["image_poll_directory"]
 		self.storage_prefix = dir_info["file_prefix"]
 		self.mvCam.open_cam()
-		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=self.analog_gain,aemode=self.aemode,aeop=self.aeop))
 		self.mvCam.set_strobe(MvStrobe(image_parameters["strobe_duration"],image_parameters["strobe_output"],image_parameters["strobe_driver"],image_parameters["strobe_delay"]))
 
 		self.trigger_event = trigger_event
@@ -50,7 +49,6 @@ class ImageFetcher(object):
 	def stop_capture(self):
 		self.mvCam.stop_cam()
 		self.mvCam.close_cam()
-
 		print "DEBUG: closed camera"
 	def start_capture(self,queue,image_buffered):
 		"""
@@ -58,8 +56,9 @@ class ImageFetcher(object):
 		camera and saves them
 
 		"""
-		loop,delay = queue.get(block=True)
-		if self.mvCam.start_cam(int(loop*1000000), int(delay*1000000)) != 0:
+		fps,start_gain= queue.get(block=True)
+		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=start_gain,aemode=self.aemode,aeop=self.aeop))
+		if self.mvCam.start_cam(int((1/fps)*1000000),DEFAULT_DELAY ) != 0:
 			raise Exception(self.mvCam.dvpStatus)
 
 		while self.trigger_event.is_set(): #while event is set

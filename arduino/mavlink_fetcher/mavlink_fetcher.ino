@@ -1,7 +1,7 @@
 #include <Mavlink.h>
 
 const unsigned TRIGGER_PIN = 2; //input pin
-volatile bool trigger_state = 0; 
+volatile bool trigger_state = 0;  
 Mavlink mav(Serial1);
 
 
@@ -20,8 +20,10 @@ void setup() {
 
 void loop() {
      	mav.read();
+
 	//when triggered output to serial
 	if (trigger_state) {
+    trigger_state = 0;
 		Mavlink::attributes attribs = mav.getAttribs();
 		Serial.print(attribs.lat);
 		Serial.print(',');
@@ -36,5 +38,5 @@ void loop() {
 		Serial.print(attribs.pitch);
 		Serial.print(',');
 		Serial.println(attribs.yaw);
-	}
+	} 
 }
