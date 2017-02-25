@@ -89,9 +89,9 @@ class Uploader():
 					print("DEBUG: Stop triggering signal Received!")
 					trigger_event.clear()
 					currently_triggering = False
-				elif "gain" in resp_json and float(resp_json["gain"]) > 0:
+				elif "new_gain" in resp_json and float(resp_json["new_gain"]) > 0:
 
-					print "GOT GAIN " + str(resp_json["gain"])
-					camera_trigger_params.put(("gain",float(resp_json["gain"])))
+					print "GOT GAIN " + str(resp_json["new_gain"])
+					camera_trigger_params.put(("new_gain",float(resp_json["new_gain"])))
 			time.sleep(heartbeat_delay) #5 is arbitrary
 
