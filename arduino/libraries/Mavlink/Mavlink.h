@@ -10,6 +10,7 @@ public:
 		long lat; //latitude * 1e7
 		long lon; //longitude * e17
 		long rel_alt; //relative altitude in millimeters
+		long alt;
 		float roll; //roll in radians
 		float pitch; //pitch in radians
 		float yaw; //yaw in radians

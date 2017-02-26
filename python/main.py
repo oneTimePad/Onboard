@@ -23,7 +23,8 @@ image_path = str(args.pictures)
 telem_path = str(args.telems)
 com_port = "/dev/ttyACM0"
 file_prefix = "capt"
-
+print image_path
+print telem_path
 server_info = {"server_ip": server_ip, "server_port": server_port, "username": username, "password": password}
 dir_info = {"next_image_number": 1, "image_poll_directory": image_path, "telemetry_poll_directory": telem_path,"file_prefix":file_prefix}
 delay_info = {"poll_delay": 2, "heartbeat_delay": 2}

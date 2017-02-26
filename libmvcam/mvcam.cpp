@@ -177,11 +177,11 @@ mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat
 		*ret_stat = status;
 		return MV_DVP_ERROR;
 	}
-	/*
+	
 	if ((status = dvpSetExposure(*handle, exp.mvexp_shutter)) != DVP_STATUS_OK) {
 		*ret_stat = status;
 		return MV_DVP_ERROR;
-	}*/
+	}
 
 
 

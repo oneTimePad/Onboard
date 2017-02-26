@@ -43,7 +43,7 @@ class ImagePoller(object):
 			#if statinfo.st_size <500000:
 			#	print "DEBUG: SMALL IMAGE"
 
-			print "DEBUG: current rate consumer: ", str(rate)
+			#print "DEBUG: current rate consumer: ", str(rate)
 			yield rate,img
 
 	# exposes next_image_number

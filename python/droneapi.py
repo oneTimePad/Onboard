@@ -113,19 +113,20 @@ class  DroneAPI:
 			with open(telemetry_filepath) as telem_file:
 				telem_data = json.load(telem_file)
 		except (IOError,ValueError):
-			telem_data = {name:(None,"0") for name in ['pitch','roll','lat','lon','alt','yaw']}
+			telem_data = {name:(None,"0") for name in ['pitch','roll','lat','lon','alt','rel_alt','yaw']}
 		# put metadata + token into the header, im not sure if i did that correctly
 		token_label, token_value = self.access_token.toAuthorization()
 		headers = {token_label: token_value}
 		# write the binary data from the file to the request
 		files = {'image': open(image_filepath,'rb')}
 		#files.update(telem_data)
-		print(telem_data)
+		#print(telem_data)
 		#print(files['yaw'])
 		endpoint = self.server_url +'/drone/postImage'
 		try:
 			#send the post request
 			resp = requests.post(endpoint, headers=headers, files=files,data=telem_data)
+			#print resp.json()
 		except requests.ConnectionError as e:
 			raise DroneAPICallError(endpoint, e)
         #return the response

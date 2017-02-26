@@ -1,3 +1,5 @@
 libmvcam/libmvcam.so
+libmvcam/*.swp
+libmvcam/camtest*
 python/*.pyc
 
