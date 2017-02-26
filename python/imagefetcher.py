@@ -78,7 +78,7 @@ class ImageFetcher(object):
 			self.image_id+=1
 			if not queue.empty():
 				key,value= queue.get(block=False)
-				if key == "gain":
+				if key == "new_gain":
 					print "Setting gain to : " + str(value)
 					self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=value,aemode=self.aemode,aeop=self.aeop))
 		self.mvCam.stop_cam()
