@@ -91,7 +91,7 @@ class Uploader():
 					currently_triggering = False
 				elif "new_gain" in resp_json and float(resp_json["new_gain"]) > 0:
 
-					print "GOT GAIN " + str(resp_json["new_gain"])
+					#print "GOT GAIN " + str(resp_json["new_gain"])
 					camera_trigger_params.put(("new_gain",float(resp_json["new_gain"])))
 			time.sleep(heartbeat_delay) #5 is arbitrary
 
