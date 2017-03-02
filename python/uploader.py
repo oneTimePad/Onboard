@@ -83,10 +83,10 @@ class Uploader():
 						camera_trigger_params.put((float(resp_json["fps"]),float(resp_json["gain"])))
 						trigger_event.set()
 						currently_triggering = True
-						#print("DEBUG: Trigger signal Received!")
+						print("DEBUG: Trigger signal Received!")
 			if currently_triggering == True:
 				if resp_json["heartbeat"] == "false":	#check for the "stop triggering" signal
-					#print("DEBUG: Stop triggering signal Received!")
+					print("DEBUG: Stop triggering signal Received!")
 					trigger_event.clear()
 					currently_triggering = False
 				elif "new_gain" in resp_json and float(resp_json["new_gain"]) > 0:
