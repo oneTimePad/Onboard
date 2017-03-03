@@ -123,6 +123,15 @@ class MachineVision:
 	def save_image(self,image,quality):
 		cquality = c_int(quality)
 		return int(self.libHandle.mvCamSaveImage(byref(self.dvpHandle),byref(image._as_parameter_),cquality,byref(self.dvpStatus)))
+	
+	def start_ae_int(self,ae_target):
+		"""
+			initialize the periodic interrupt of normal triggering to allow
+			for auto exposure calibration
+		"""
+		c_ae_target = c_int(ae_target)
+		return int(self.libHandle.mvCamAutoExposureInt(byref(self.dvpHandle),c_ae_target,byref(self.dvpStatus)))
+	
 	def stop_cam(self):
 		return int(self.libHandle.mvCamStopTrigger(byref(self.dvpHandle),byref(self.dvpStatus)))
 	def close_cam(self):

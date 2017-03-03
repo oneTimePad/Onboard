@@ -56,10 +56,12 @@ class ImageFetcher(object):
 		camera and saves them
 
 		"""
-		fps,start_gain= queue.get(block=True)
+		fps,start_gain,ae_target= queue.get(block=True)
 		self.mvCam.set_exposure(MvExposure(shutter=self.shutter_speed,gain=start_gain,aemode=self.aemode,aeop=self.aeop))
 		if self.mvCam.start_cam(int((1/fps)*1000000),DEFAULT_DELAY ) != 0:
 			raise Exception(self.mvCam.dvpStatus)
+		if self.mvCam.start_ae_int(ae_target) != 0:
+			raise Exception(slef.mvCam.dvpStatus)
 
 		while self.trigger_event.is_set(): #while event is set
 

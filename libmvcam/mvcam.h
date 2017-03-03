@@ -11,6 +11,8 @@
 #define MAX_CAMERA_NAME 10000
 #define MAX_IMAGE_NAME 4095
 extern "C" {
+
+
 	typedef enum { FALSE, TRUE} mybool;
 	typedef struct _mvCamImage {
 		dvpFrame frame;
@@ -43,6 +45,7 @@ extern "C" {
 		MV_INVAL_ERROR,
 		MV_NOMEM_ERROR,
 		MV_NOCAM_ERROR,
+		MV_THREAD_ERROR,
 
 
 	} mvStatus;
@@ -57,6 +60,7 @@ extern "C" {
 	mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpStatus *ret_stat);
 	mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat);
 	mvStatus mvCamSetStrobe(dvpHandle *handle, mvStrobe strb,dvpStatus *ret_stat);
+	mvStatus mvCamAutoExposureInt(dvpHandle *handle,dvpUint32 exp_target,dvpStatus *ret_stat);
 }
 #endif
 
