@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include "mvcam.h"
 #define AE_SLEEP_TIME 1
-#define AE_WAIT_TIME  1
+#define AE_WAIT_TIME  3
 static pthread_t expint_thread;
 
 
@@ -151,12 +151,12 @@ mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat
 	dvpStatus status;
 
 	if ((status = dvpSetAeMode(*handle, exp.mvexp_aemode)) != DVP_STATUS_OK) {
-	*ret_stat = status;
+		*ret_stat = status;
 	return MV_DVP_ERROR;
 	}
 	if ((status = dvpSetAeOperation(*handle, exp.mvexp_aeop)) != DVP_STATUS_OK) {
-	*ret_stat = status;
-	return MV_DVP_ERROR;
+		*ret_stat = status;
+		return MV_DVP_ERROR;
 	}
 /*
 	if (exp.mvexp_aetarget != 0) {
@@ -372,11 +372,21 @@ void *__mvCamAutoExposureInt(void *data){
 
 	dvpHandle *handle = (dvpHandle *)data;
 	while(true) {
+		/*
+		 * delay before doing again
+		 */
 		sleep(AE_SLEEP_TIME);
+		printf("TURNED OFF!\n");
+		/*
+		 * set the trigger state to false so it can do auto gain
+		 */
 		dvpSetTriggerState(*handle,false);
 		sleep(AE_WAIT_TIME);
+		/*
+		 * after waiting AE_WAIT_TIME go back to normal triggering
+		 */
 		dvpSetTriggerState(*handle,true);
-
+		printf("RESTORED!\n");
 	}
 
 	return NULL;			
@@ -395,10 +405,17 @@ mvStatus mvCamAutoExposureInt(dvpHandle *handle,dvpUint32 exp_target,dvpStatus *
 	if (handle == NULL || ret_stat == NULL || exp_target <=0) {
 		return MV_INVAL_ERROR;
 	}
+	
+	/*
+	 *	set the target amount of light for auto gain
+	 */
 	if ((*ret_stat = dvpSetAeTarget(*handle, exp_target)) != DVP_STATUS_OK){
 		return MV_DVP_ERROR;
 	}
 
+	/*
+	 *	start the thread that will periodically change the trigger state
+	 */
 	if (pthread_create(&expint_thread,NULL,__mvCamAutoExposureInt,
 			(void *)handle) == -1){
 		perror("pthread_create");
@@ -406,6 +423,41 @@ mvStatus mvCamAutoExposureInt(dvpHandle *handle,dvpUint32 exp_target,dvpStatus *
 	}
 	
 	return MV_OK;
+
+}
+
+
+/*
+ * implements auto exposure, but only once during the start before triggering
+ * handle := ptr to camera handle
+ * exp_target := target exposure value
+ * ret_stat := ptr to dvp internal ret value
+ * return mvStatus
+ */
+mvStatus mvCamExposureInitCalibrate(dvpHandle *handle, dvpUint32 exp_target, dvpStatus *ret_stat){
+	if (handle == NULL || ret_stat == NULL || exp_target <=0) {
+		return MV_INVAL_ERROR;
+	}
+	if ((*ret_stat = dvpSetAeTarget(*handle, exp_target)) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+
+	if ((*ret_stat = dvpSetTriggerState(*handle,false)  ) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+	if ((*ret_stat = dvpStart(*handle) ) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+	
+	sleep(AE_WAIT_TIME);
+
+	if ((*ret_stat = dvpStop(*handle)  ) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+	
+	return MV_OK;
+
+
 
 }
 

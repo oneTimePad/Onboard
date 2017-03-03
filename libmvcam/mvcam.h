@@ -61,6 +61,7 @@ extern "C" {
 	mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat);
 	mvStatus mvCamSetStrobe(dvpHandle *handle, mvStrobe strb,dvpStatus *ret_stat);
 	mvStatus mvCamAutoExposureInt(dvpHandle *handle,dvpUint32 exp_target,dvpStatus *ret_stat);
+	mvStatus mvCamExposureInitCalibrate(dvpHandle *handle, dvpUint32 exp_target, dvpStatus *ret_stat);
 }
 #endif
 
