@@ -131,6 +131,10 @@ class MachineVision:
 		"""
 		c_ae_target = c_int(ae_target)
 		return int(self.libHandle.mvCamAutoExposureInt(byref(self.dvpHandle),c_ae_target,byref(self.dvpStatus)))
+	
+	def stop_ae_int(self):
+		self.libHandle.mvCamAutoExposureIntClear()
+
 	def init_exposure_calibrate(self, ae_target):
 		"""
 			performs one time auto exposure before triggering	

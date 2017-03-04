@@ -4,12 +4,13 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <atomic>
 #include "mvcam.h"
-#define AE_SLEEP_TIME 1
-#define AE_WAIT_TIME  3
+#define AE_SLEEP_TIME 10
+#define AE_WAIT_TIME  .5
 static pthread_t expint_thread;
 
-
+std::atomic<bool> flag; 
 static mvStatus isValidHandle(dvpHandle *handle, dvpStatus *ret_stat) {
 	if (handle == NULL || ret_stat == NULL) {
 		return MV_INVAL_ERROR;
@@ -371,7 +372,7 @@ void *__mvCamAutoExposureInt(void *data){
 		return  NULL;
 
 	dvpHandle *handle = (dvpHandle *)data;
-	while(true) {
+	while(flag) {
 		/*
 		 * delay before doing again
 		 */
@@ -388,7 +389,7 @@ void *__mvCamAutoExposureInt(void *data){
 		dvpSetTriggerState(*handle,true);
 		printf("RESTORED!\n");
 	}
-
+	pthread_exit(0);
 	return NULL;			
 }
 
@@ -416,6 +417,7 @@ mvStatus mvCamAutoExposureInt(dvpHandle *handle,dvpUint32 exp_target,dvpStatus *
 	/*
 	 *	start the thread that will periodically change the trigger state
 	 */
+	flag = true;
 	if (pthread_create(&expint_thread,NULL,__mvCamAutoExposureInt,
 			(void *)handle) == -1){
 		perror("pthread_create");
@@ -426,6 +428,12 @@ mvStatus mvCamAutoExposureInt(dvpHandle *handle,dvpUint32 exp_target,dvpStatus *
 
 }
 
+
+
+void mvCamAutoExposureIntClear(void){
+	flag = false;	
+
+}
 
 /*
  * implements auto exposure, but only once during the start before triggering
