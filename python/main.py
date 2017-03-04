@@ -22,7 +22,7 @@ password = "ruautonomous"
 image_path = str(args.pictures) 
 telem_path = str(args.telems)
 com_port = "/dev/ttyACM0"
-file_prefix = "capt"
+file_prefix = str(int(time.time()))+"capt" 
 print image_path
 print telem_path
 server_info = {"server_ip": server_ip, "server_port": server_port, "username": username, "password": password}
