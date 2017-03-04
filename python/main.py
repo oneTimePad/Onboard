@@ -28,7 +28,7 @@ print telem_path
 server_info = {"server_ip": server_ip, "server_port": server_port, "username": username, "password": password}
 dir_info = {"next_image_number": 1, "image_poll_directory": image_path, "telemetry_poll_directory": telem_path,"file_prefix":file_prefix}
 delay_info = {"poll_delay": 2, "heartbeat_delay": 2}
-cam_info={"shutter_speed":400,"gain":1.0,"frame_timeout":5000,"jpeg_quality":100,"aemode":MvAeMode().AE_MODE_AG_ONLY,"aeop":MvAeOp().AE_OP_OFF,"strobe_delay":1000000.0,"strobe_duration":100.0,"strobe_output":MvStrobeOutput().STROBE_OUT_HIGH,"strobe_driver":MvStrobeDriver().TIMER_LOGIC}
+cam_info={"shutter_speed":400,"gain":1.0,"frame_timeout":5000,"jpeg_quality":100,"aemode":MvAeMode().AE_MODE_AG_ONLY,"aeop":MvAeOp().AE_OP_CONTINUOUS,"strobe_delay":1000000.0,"strobe_duration":100.0,"strobe_output":MvStrobeOutput().STROBE_OUT_HIGH,"strobe_driver":MvStrobeDriver().TIMER_LOGIC}
 
 def find_next_image_num():
 	image_num = 1
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 	camera_trigger_params = multiprocessing.Queue()
 	uploader = Uploader(server_info, dir_info, delay_info)
 	#image_buffered =  multiprocessing.Event()
-	image_buffer = ImageBuffer(max_buffer_size=20,mid_buffer_size=15)
+	image_buffer = ImageBuffer(max_buffer_size=10,mid_buffer_size=5)
 	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
 
 	uploader_proc = multiprocessing.Process(target=uploader.run_uploader, args=(trigger_event,com_port,camera_trigger_params,image_buffer))

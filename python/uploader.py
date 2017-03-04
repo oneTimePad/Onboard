@@ -80,7 +80,7 @@ class Uploader():
 			if currently_triggering == False:
 				if resp_json["heartbeat"] == "true":	#check for the "start triggering" signal
 					if resp_json["fps"] is not None and resp_json["gain"] is not None:
-						camera_trigger_params.put((float(resp_json["fps"]),float(resp_json["gain"])))
+						camera_trigger_params.put((float(resp_json["fps"]),float(resp_json["gain"]),resp_json["mode"]))
 						trigger_event.set()
 						currently_triggering = True
 						print("DEBUG: Trigger signal Received!")

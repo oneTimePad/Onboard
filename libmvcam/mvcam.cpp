@@ -1,9 +1,16 @@
 // libmvcam.cpp : Defines the exported functions for the DLL application.
+#include <stdlib.h>
+#include <unistd.h>
+#include <malloc.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <atomic>
 #include "mvcam.h"
+#define AE_SLEEP_TIME 10
+#define AE_WAIT_TIME  .5
+static pthread_t expint_thread;
 
-
-
+std::atomic<bool> flag; 
 static mvStatus isValidHandle(dvpHandle *handle, dvpStatus *ret_stat) {
 	if (handle == NULL || ret_stat == NULL) {
 		return MV_INVAL_ERROR;
@@ -145,12 +152,12 @@ mvStatus mvCamSetExposure(dvpHandle *handle, mvExposure exp, dvpStatus *ret_stat
 	dvpStatus status;
 
 	if ((status = dvpSetAeMode(*handle, exp.mvexp_aemode)) != DVP_STATUS_OK) {
-	*ret_stat = status;
+		*ret_stat = status;
 	return MV_DVP_ERROR;
 	}
 	if ((status = dvpSetAeOperation(*handle, exp.mvexp_aeop)) != DVP_STATUS_OK) {
-	*ret_stat = status;
-	return MV_DVP_ERROR;
+		*ret_stat = status;
+		return MV_DVP_ERROR;
 	}
 /*
 	if (exp.mvexp_aetarget != 0) {
@@ -316,7 +323,7 @@ mvStatus mvCamGetImage(dvpHandle *handle, mvCamImage *image, dvpUint32 timeout, 
 		printf("ERROR\n");
 	}
 	else {
-		//printf("GAIN: %f\n", gain);
+		printf("GAIN: %f\n", gain);
 	}
 
 	status = dvpGetFrame(*handle, &image->frame, &image->image_buffer, timeout);
@@ -352,3 +359,113 @@ mvStatus mvCamSaveImage(dvpHandle *handle, mvCamImage *image, int quality, dvpSt
 	return MV_OK;
 
 }
+
+
+/*
+ * runs in separate thread to periodically interrupt normally
+ * triggering every AE_SLEEP_TIME seconds. and wait
+ * AE_WAIT_TIME seconds to start it up again
+ * data := void* to dvpHandle
+ */
+void *__mvCamAutoExposureInt(void *data){
+	if (data == NULL)
+		return  NULL;
+
+	dvpHandle *handle = (dvpHandle *)data;
+	while(flag) {
+		/*
+		 * delay before doing again
+		 */
+		sleep(AE_SLEEP_TIME);
+		printf("TURNED OFF!\n");
+		/*
+		 * set the trigger state to false so it can do auto gain
+		 */
+		dvpSetTriggerState(*handle,false);
+		sleep(AE_WAIT_TIME);
+		/*
+		 * after waiting AE_WAIT_TIME go back to normal triggering
+		 */
+		dvpSetTriggerState(*handle,true);
+		printf("RESTORED!\n");
+	}
+	pthread_exit(0);
+	return NULL;			
+}
+
+/*
+ *
+ * Sets the auto exposure target and starts the autoexposure
+ * interrupt thread
+ * handle := ptr to camera handle
+ * exp_target := auto exposure target
+ * ret_stat := dvp internal return status
+ * returns mvStatus
+ */
+mvStatus mvCamAutoExposureInt(dvpHandle *handle,dvpUint32 exp_target,dvpStatus *ret_stat){
+	if (handle == NULL || ret_stat == NULL || exp_target <=0) {
+		return MV_INVAL_ERROR;
+	}
+	
+	/*
+	 *	set the target amount of light for auto gain
+	 */
+	if ((*ret_stat = dvpSetAeTarget(*handle, exp_target)) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+
+	/*
+	 *	start the thread that will periodically change the trigger state
+	 */
+	flag = true;
+	if (pthread_create(&expint_thread,NULL,__mvCamAutoExposureInt,
+			(void *)handle) == -1){
+		perror("pthread_create");
+		return MV_THREAD_ERROR;
+	}
+	
+	return MV_OK;
+
+}
+
+
+
+void mvCamAutoExposureIntClear(void){
+	flag = false;	
+
+}
+
+/*
+ * implements auto exposure, but only once during the start before triggering
+ * handle := ptr to camera handle
+ * exp_target := target exposure value
+ * ret_stat := ptr to dvp internal ret value
+ * return mvStatus
+ */
+mvStatus mvCamExposureInitCalibrate(dvpHandle *handle, dvpUint32 exp_target, dvpStatus *ret_stat){
+	if (handle == NULL || ret_stat == NULL || exp_target <=0) {
+		return MV_INVAL_ERROR;
+	}
+	if ((*ret_stat = dvpSetAeTarget(*handle, exp_target)) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+
+	if ((*ret_stat = dvpSetTriggerState(*handle,false)  ) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+	if ((*ret_stat = dvpStart(*handle) ) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+	
+	sleep(AE_WAIT_TIME);
+
+	if ((*ret_stat = dvpStop(*handle)  ) != DVP_STATUS_OK){
+		return MV_DVP_ERROR;
+	}
+	
+	return MV_OK;
+
+
+
+}
+

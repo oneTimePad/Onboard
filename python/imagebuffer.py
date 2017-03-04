@@ -43,7 +43,7 @@ class ImageBuffer(object):
 			if  self.insert_since_last_cal == self.num_inserts_till_cal:
 				self.insert_rate.value = float(((time.time()-self.last_insert_time)/self.insert_since_last_cal))
 				self.insert_since_last_cal =0
-				#print "DEBUG: current rate inserting: ",str(self.insert_rate.value)
+				print "DEBUG: current rate inserting: ",str(self.insert_rate.value)
 			self.image_queue.put(image_num)
 
 			if not self.not_buffering.is_set() and self.image_queue.qsize()>= self.max_buffer_size: #wait till queue_size > = init_queue_size
@@ -58,11 +58,11 @@ class ImageBuffer(object):
 		"""
 		#print "DEBUG: LOOKING FOR NEXT IMAGE"
 		with self.lock: #adds consistent view of the queue size
-			#print "DEBUG: IMAGE QUEUE SIZE:", str(self.image_queue.qsize())
+			print "DEBUG: IMAGE QUEUE SIZE:", str(self.image_queue.qsize())
 			if self.image_queue.qsize() < self.min_buffer_size: #if image queue falls below a certain len (block)
 				self.not_buffering.clear()
 
-		#print "DEBUG: WAITING FOR BUFFERING"
+		print "DEBUG: WAITING FOR BUFFERING"
 		self.not_buffering.wait() #buffering
 		with self.lock: #consumption rate calculation is not atomic and must cause the producer to wait
 			rate = self.calculate_consumption_rate(self.insert_rate.value)
