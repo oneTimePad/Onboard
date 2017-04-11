@@ -63,16 +63,19 @@ class Uploader():
 		telem_process = multiprocessing.Process(target=telem.start_serial_listener,args=(trigger_event,serial_port))
 		telem_process.daemon = True
 		telem_process.start()
+		printed = False
 		while(True):
 			time1 = datetime.datetime.now().time()
 			try:
 				heartbeat_response = drone_api.postHeartbeat()			#post the heartbeat
 			except DroneAPICallError as e:
-				print e
+				if not printed:
+					print e
 				time.sleep(heartbeat_delay)
 				continue
 			except KeyboardInterrupt:
 				return
+			printed = False
 			time2 = datetime.datetime.now().time()
 			print("DEBUG: Posted heartbeat at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(heartbeat_response.status_code))
 			resp_json = json.loads(heartbeat_response.text)

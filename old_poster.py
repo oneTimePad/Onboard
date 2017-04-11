@@ -8,7 +8,6 @@ from imagepoller import ImagePoller
 from droneapi import DroneAPI, DroneAPICallError
 import time
 import datetime
-import concurrent.futures
 
 
 class ImagePoster(object):
@@ -17,7 +16,6 @@ class ImagePoster(object):
 
 
 	def __init__(self, dir_info, drone_api, poll_delay,image_buffer):
-		self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
 		self.dir_info = dir_info
 		self.next_image_number = self.dir_info["next_image_number"]
 		self.image_poll_directory = self.dir_info["image_poll_directory"]
@@ -26,16 +24,7 @@ class ImagePoster(object):
 		self.poll_delay = poll_delay
 		self.image_prefix = self.dir_info["file_prefix"]
 		self.image_poller = ImagePoller(self.next_image_number, self.image_poll_directory, self.telemetry_poll_directory,self.image_prefix,image_buffer)
-	def postImage(self,img_filepath,telem_filepath):
-		while (True):
-				try:
-					#print "posting" + img_filepath
-					return self.drone_api.postImage(img_filepath, telem_filepath)
-				except DroneAPICallError as e:
-					time.sleep(1)
-					pass
-	def postCallback(self,future):
-		print(future.result())
+
 
 	def startPosting(self, trigger_event):
         #starts the process of polling and posting images and telemtry to server
@@ -56,7 +45,17 @@ class ImagePoster(object):
 
 			rate,fetch = image_poller.next_image_isready().next()
 			if fetch != 0:
-				self.executor.submit(self.postImage,img_filepath, telem_filepath).add_done_callback(self.postCallback)
+
+				posted = False
+				while (posted == False):
+
+
+					try:
+						#print "posting" + img_filepath
+						imgpost_response = drone_api.postImage(img_filepath, telem_filepath)
+						posted = True
+					except DroneAPICallError as e:
+						print e
 				time2 = datetime.datetime.now().time()
 				#print("DEBUG: Posted image at " + str(time1) + ", received response at " + str(time2) + ", response code was " + str(imgpost_response.status_code))
 				image_poller.increment()
@@ -64,5 +63,3 @@ class ImagePoster(object):
 			#unlikely
 			else:
 				time.sleep(poll_delay)
-
-

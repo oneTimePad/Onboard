@@ -117,7 +117,7 @@ class  DroneAPI:
 		# put metadata + token into the header, im not sure if i did that correctly
 		token_label, token_value = self.access_token.toAuthorization()
 		headers = {token_label: token_value}
-		# write the binary data from the file to the request
+		#write the binary data from the file to the request
 		files = {'image': open(image_filepath,'rb')}
 		#files.update(telem_data)
 		#print(telem_data)

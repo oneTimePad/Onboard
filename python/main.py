@@ -42,7 +42,7 @@ if __name__ == "__main__":
 	camera_trigger_params = multiprocessing.Queue()
 	uploader = Uploader(server_info, dir_info, delay_info)
 	#image_buffered =  multiprocessing.Event()
-	image_buffer = ImageBuffer(max_buffer_size=10,mid_buffer_size=5)
+	image_buffer = ImageBuffer(max_buffer_size=4,mid_buffer_size=2)
 	image_fetcher = ImageFetcher(cam_info, dir_info,trigger_event)
 
 	uploader_proc = multiprocessing.Process(target=uploader.run_uploader, args=(trigger_event,com_port,camera_trigger_params,image_buffer))
